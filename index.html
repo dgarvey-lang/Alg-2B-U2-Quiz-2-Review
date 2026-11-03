@@ -12,13 +12,13 @@
   :root {
     --bg: #f7f7f5; --card: #ffffff; --text: #1d1d1f; --muted: #5b5b63;
     --accent: #1f5fae; --accent-soft: #e6eefa; --border: #dcdce0;
-    --good: #1f7a3d; --warn: #a35200;
+    --good: #1f7a3d; --warn: #a35200; --bad: #c62828;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #141416; --card: #1e1e22; --text: #ececf0; --muted: #a3a3ad;
       --accent: #7fb0ff; --accent-soft: #1f2a3d; --border: #33333a;
-      --good: #6fd08f; --warn: #ffb067;
+      --good: #6fd08f; --warn: #ffb067; --bad: #ff7b7b;
     }
   }
   * { box-sizing: border-box; }
@@ -52,18 +52,12 @@
     padding: 12px 16px; margin-bottom: 12px;
   }
   .num { font-weight: 700; color: var(--accent); margin-right: 6px; }
-  details { margin-top: 8px; }
-  summary { cursor: pointer; color: var(--accent); font-size: .92rem; }
-  .ans { margin-top: 6px; padding-left: 12px; border-left: 3px solid var(--good); overflow-x: auto; }
-  .ans .final { font-weight: 700; color: var(--good); }
-  .trap { color: var(--warn); font-size: .92rem; }
   mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
   footer { margin-top: 48px; color: var(--muted); font-size: .85rem; }
   @media print {
     body { background: #fff; color: #000; font-size: 12pt; }
-    nav.toc, .controls, summary { display: none; }
+    nav.toc, .controls { display: none; }
     ol.problems > li { break-inside: avoid; border-color: #999; }
-    body.no-answers details { display: none; }
   }
   /* ---------- Scratch pad ---------- */
   :root { --pad-w: min(42vw, 560px); }
@@ -105,13 +99,37 @@
     body.pad-open #padToggle { display: none; }
   }
   @media print { #pad, #padToggle { display: none !important; } body { padding-right: 0 !important; } }
+  /* ---------- Answer checking ---------- */
+  .score { font-weight: 700; color: var(--accent); margin-right: auto; align-self: center; }
+  .howto { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; margin: 8px 0 0; font-size: .92rem; }
+  .howto ul { margin: 6px 0; padding-left: 20px; }
+  .howto code { background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+  .work { margin-top: 10px; }
+  .ansrow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 6px; }
+  .ansrow label { font-weight: 600; min-width: 2.5em; }
+  .ansrow input {
+    flex: 1 1 180px; min-width: 0; font: inherit; font-size: 1.05rem; padding: 8px 10px;
+    border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);
+  }
+  .ansrow input:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .suffix { color: var(--muted); }
+  .preview { color: var(--muted); font-size: .9rem; min-height: 1.2em; margin-top: 4px; }
+  .keypad { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .keypad button { min-width: 42px; min-height: 40px; font-size: 1rem; }
+  .keypad .checkbtn { margin-left: auto; background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; padding: 6px 16px; }
+  .feedback { font-weight: 600; font-size: .95rem; margin-top: 4px; }
+  .feedback.right { color: var(--good); }
+  .feedback.wrong { color: var(--bad); }
+  .feedback.almost, .feedback.error { color: var(--warn); }
+  ol.problems > li.solved { border-color: var(--good); box-shadow: inset 4px 0 0 var(--good); }
+  @media print { .work, .howto, .score { display: none !important; } }
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
   <h1>Algebra 2B · Unit 2 Quiz 2 Review</h1>
-  <p>Radicals &amp; Quadratics. Work each problem on the scratch pad, then open “Show answer” to check your work.</p>
+  <p>Radicals &amp; Quadratics. Work each problem on the scratch pad, type your answer, then press “Check work.”</p>
 </header>
 
 <nav class="toc" aria-label="Sections">
@@ -124,10 +142,19 @@
 </nav>
 
 <div class="controls">
-  <button id="showAll" type="button">Show all answers</button>
-  <button id="hideAll" type="button">Hide all answers</button>
-  <button id="printQ" type="button">Print (questions only)</button>
-  <button id="printA" type="button">Print (with answer key)</button>
+  <span id="score" class="score" aria-live="polite"></span>
+  <button id="printQ" type="button">Print worksheet</button>
+</div>
+
+<div class="howto">
+  <strong>How to enter answers</strong>
+  <ul>
+    <li>Use the buttons under each answer box for <b>√</b>, <b>∛</b>, <b>i</b> and <b>±</b>, or type <code>sqrt</code> and <code>cbrt</code>.</li>
+    <li>Type powers with <b>^</b> (x^2) and fractions with <b>/</b>. Put a whole fraction’s top in parentheses, like <code>(15+5√2)/7</code>.</li>
+    <li>A radical covers the numbers and letters right after it, so <code>√2x</code> means \(\sqrt{2x}\). Use parentheses for anything more, like <code>√(x+3)</code>, and write <b>i</b> in front: <code>2i√5</code>.</li>
+    <li>For equations, separate answers with commas (<code>8, -3</code>), use ± (<code>2±√5</code>), or type <code>no solution</code>.</li>
+    <li>Answers must be exact and fully simplified. Check the “You entered” line to make sure it reads the way you meant.</li>
+  </ul>
 </div>
 
 <!-- ============ 1 ============ -->
@@ -143,22 +170,11 @@
     <em>Assume all variables are nonnegative.</em>
   </div>
   <ol class="problems">
-    <li><span class="num">1.</span> Simplify \(\sqrt{72}\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(\sqrt{36\cdot 2} = \)<span class="final"> \(6\sqrt2\)</span></div></details></li>
-    <li><span class="num">2.</span> Simplify \(\sqrt{50x^3y^4}\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(\sqrt{25\cdot 2\cdot x^2\cdot x\cdot y^4} = \)<span class="final"> \(5xy^2\sqrt{2x}\)</span></div></details></li>
-    <li><span class="num">3.</span> Simplify \(\sqrt[3]{54}\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(\sqrt[3]{27\cdot 2} = \)<span class="final"> \(3\sqrt[3]{2}\)</span></div></details></li>
-    <li><span class="num">4.</span> Simplify \(\sqrt[3]{-16a^5b^6}\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(\sqrt[3]{(-8)\cdot 2\cdot a^3\cdot a^2\cdot b^6} = \)<span class="final"> \(-2ab^2\sqrt[3]{2a^2}\)</span><br>
-        <span class="trap">A cube root of a negative number is real and negative.</span></div></details></li>
-    <li><span class="num">5.</span> Simplify \(\sqrt{-49}\) and \(\sqrt{-20}\).
-      <details><summary>Show answer</summary><div class="ans">
-        <span class="final">\(7i\)</span> and \(\sqrt{-1}\cdot\sqrt{4\cdot5} = \)<span class="final"> \(2i\sqrt5\)</span></div></details></li>
+    <li><span class="num">1.</span> Simplify \(\sqrt{72}\).</li>
+    <li><span class="num">2.</span> Simplify \(\sqrt{50x^3y^4}\).</li>
+    <li><span class="num">3.</span> Simplify \(\sqrt[3]{54}\).</li>
+    <li><span class="num">4.</span> Simplify \(\sqrt[3]{-16a^5b^6}\).</li>
+    <li><span class="num">5.</span> Simplify \(\sqrt{-49}\) and \(\sqrt{-20}\).</li>
   </ol>
 </section>
 
@@ -174,29 +190,13 @@
     </ul>
   </div>
   <ol class="problems">
-    <li><span class="num">6.</span> Simplify \(3\sqrt{12} + 5\sqrt{27} - \sqrt{48}\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(3(2\sqrt3) + 5(3\sqrt3) - 4\sqrt3 = 6\sqrt3 + 15\sqrt3 - 4\sqrt3 = \)<span class="final"> \(17\sqrt3\)</span></div></details></li>
-    <li><span class="num">7.</span> Simplify \(\sqrt6\cdot\sqrt{15}\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(\sqrt{90} = \sqrt{9\cdot10} = \)<span class="final"> \(3\sqrt{10}\)</span></div></details></li>
-    <li><span class="num">8.</span> Multiply \((2+\sqrt3)(4-\sqrt3)\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(8 - 2\sqrt3 + 4\sqrt3 - 3 = \)<span class="final"> \(5 + 2\sqrt3\)</span></div></details></li>
-    <li><span class="num">9.</span> Expand \((\sqrt5 - 2)^2\).
-      <details><summary>Show answer</summary><div class="ans">
-        \((\sqrt5)^2 - 2(2)\sqrt5 + 4 = 5 - 4\sqrt5 + 4 = \)<span class="final"> \(9 - 4\sqrt5\)</span><br>
-        <span class="trap">Common error: \((\sqrt5-2)^2 \ne 5 + 4\). Don't forget the middle term.</span></div></details></li>
-    <li><span class="num">10.</span> Rationalize \(\dfrac{6}{\sqrt3}\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(\dfrac{6}{\sqrt3}\cdot\dfrac{\sqrt3}{\sqrt3} = \dfrac{6\sqrt3}{3} = \)<span class="final"> \(2\sqrt3\)</span></div></details></li>
-    <li><span class="num">11.</span> Rationalize \(\dfrac{5}{3-\sqrt2}\).
-      <details><summary>Show answer</summary><div class="ans">
-        Multiply by the conjugate \(\dfrac{3+\sqrt2}{3+\sqrt2}\):
-        \(\dfrac{5(3+\sqrt2)}{9-2} = \)<span class="final"> \(\dfrac{15+5\sqrt2}{7}\)</span></div></details></li>
-    <li><span class="num">12.</span> Simplify \(\dfrac{\sqrt{18x^5}}{\sqrt{2x}}\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(\sqrt{\dfrac{18x^5}{2x}} = \sqrt{9x^4} = \)<span class="final"> \(3x^2\)</span></div></details></li>
+    <li><span class="num">6.</span> Simplify \(3\sqrt{12} + 5\sqrt{27} - \sqrt{48}\).</li>
+    <li><span class="num">7.</span> Simplify \(\sqrt6\cdot\sqrt{15}\).</li>
+    <li><span class="num">8.</span> Multiply \((2+\sqrt3)(4-\sqrt3)\).</li>
+    <li><span class="num">9.</span> Expand \((\sqrt5 - 2)^2\).</li>
+    <li><span class="num">10.</span> Rationalize \(\dfrac{6}{\sqrt3}\).</li>
+    <li><span class="num">11.</span> Rationalize \(\dfrac{5}{3-\sqrt2}\).</li>
+    <li><span class="num">12.</span> Simplify \(\dfrac{\sqrt{18x^5}}{\sqrt{2x}}\).</li>
   </ol>
 </section>
 
@@ -213,25 +213,11 @@
     </ul>
   </div>
   <ol class="problems">
-    <li><span class="num">13.</span> Solve \(\sqrt{x+5} = 4\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(x+5 = 16 \Rightarrow\)<span class="final"> \(x = 11\)</span>. Check: \(\sqrt{16}=4\) ✓</div></details></li>
-    <li><span class="num">14.</span> Solve \(\sqrt{2x-3} + 2 = 7\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(\sqrt{2x-3} = 5 \Rightarrow 2x-3 = 25 \Rightarrow\)<span class="final"> \(x = 14\)</span>. Check: \(\sqrt{25}+2 = 7\) ✓</div></details></li>
-    <li><span class="num">15.</span> Solve \(\sqrt{x+7} = x - 5\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(x+7 = x^2 - 10x + 25 \Rightarrow x^2 - 11x + 18 = 0 \Rightarrow (x-9)(x-2) = 0\)<br>
-        Check \(x=9\): \(\sqrt{16} = 4 = 9-5\) ✓<br>
-        Check \(x=2\): \(\sqrt9 = 3 \ne 2-5 = -3\) ✗ (extraneous)<br>
-        <span class="final">\(x = 9\)</span></div></details></li>
-    <li><span class="num">16.</span> Solve \(\sqrt[3]{x-4} = -3\).
-      <details><summary>Show answer</summary><div class="ans">
-        Cube both sides: \(x - 4 = -27 \Rightarrow\)<span class="final"> \(x = -23\)</span></div></details></li>
-    <li><span class="num">17.</span> Solve \(\sqrt{x+3} + 5 = 2\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(\sqrt{x+3} = -3\). A principal square root can't be negative, so there is <span class="final">no solution</span>.<br>
-        <span class="trap">If you square anyway, you get \(x = 6\), but it fails the check: \(\sqrt9 + 5 = 8 \ne 2\).</span></div></details></li>
+    <li><span class="num">13.</span> Solve \(\sqrt{x+5} = 4\).</li>
+    <li><span class="num">14.</span> Solve \(\sqrt{2x-3} + 2 = 7\).</li>
+    <li><span class="num">15.</span> Solve \(\sqrt{x+7} = x - 5\).</li>
+    <li><span class="num">16.</span> Solve \(\sqrt[3]{x-4} = -3\).</li>
+    <li><span class="num">17.</span> Solve \(\sqrt{x+3} + 5 = 2\).</li>
   </ol>
 </section>
 
@@ -247,28 +233,13 @@
     </ul>
   </div>
   <ol class="problems">
-    <li><span class="num">18.</span> Solve by factoring: \(x^2 - 5x - 24 = 0\).
-      <details><summary>Show answer</summary><div class="ans">
-        \((x-8)(x+3) = 0 \Rightarrow\)<span class="final"> \(x = 8,\ x = -3\)</span></div></details></li>
-    <li><span class="num">19.</span> Solve by factoring: \(2x^2 + 7x + 3 = 0\).
-      <details><summary>Show answer</summary><div class="ans">
-        \((2x+1)(x+3) = 0 \Rightarrow\)<span class="final"> \(x = -\tfrac12,\ x = -3\)</span></div></details></li>
-    <li><span class="num">20.</span> Solve using square roots: \(3(x-2)^2 = 48\).
-      <details><summary>Show answer</summary><div class="ans">
-        \((x-2)^2 = 16 \Rightarrow x - 2 = \pm 4 \Rightarrow\)<span class="final"> \(x = 6,\ x = -2\)</span></div></details></li>
-    <li><span class="num">21.</span> Solve: \(x^2 + 25 = 0\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(x^2 = -25 \Rightarrow x = \pm\sqrt{-25} = \)<span class="final"> \(\pm 5i\)</span></div></details></li>
-    <li><span class="num">22.</span> Solve by completing the square: \(x^2 + 6x - 7 = 0\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(x^2 + 6x = 7 \Rightarrow x^2 + 6x + 9 = 16 \Rightarrow (x+3)^2 = 16\)<br>
-        \(x + 3 = \pm4 \Rightarrow\)<span class="final"> \(x = 1,\ x = -7\)</span></div></details></li>
-    <li><span class="num">23.</span> Solve by completing the square: \(x^2 - 4x - 1 = 0\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(x^2 - 4x + 4 = 1 + 4 \Rightarrow (x-2)^2 = 5 \Rightarrow\)<span class="final"> \(x = 2 \pm \sqrt5\)</span></div></details></li>
-    <li><span class="num">24.</span> Write \(y = x^2 + 8x + 10\) in vertex form and name the vertex.
-      <details><summary>Show answer</summary><div class="ans">
-        \(y = (x^2 + 8x + 16) + 10 - 16 = \)<span class="final"> \((x+4)^2 - 6\)</span>, vertex <span class="final">\((-4,\,-6)\)</span></div></details></li>
+    <li><span class="num">18.</span> Solve by factoring: \(x^2 - 5x - 24 = 0\).</li>
+    <li><span class="num">19.</span> Solve by factoring: \(2x^2 + 7x + 3 = 0\).</li>
+    <li><span class="num">20.</span> Solve using square roots: \(3(x-2)^2 = 48\).</li>
+    <li><span class="num">21.</span> Solve: \(x^2 + 25 = 0\).</li>
+    <li><span class="num">22.</span> Solve by completing the square: \(x^2 + 6x - 7 = 0\).</li>
+    <li><span class="num">23.</span> Solve by completing the square: \(x^2 - 4x - 1 = 0\).</li>
+    <li><span class="num">24.</span> Write \(y = x^2 + 8x + 10\) in vertex form and name the vertex.</li>
   </ol>
 </section>
 
@@ -280,18 +251,10 @@
     Always rewrite \(\sqrt{-a}\) as \(i\sqrt a\) <em>before</em> multiplying.
   </div>
   <ol class="problems">
-    <li><span class="num">25.</span> Simplify \((3 + 2i) + (5 - 7i)\).
-      <details><summary>Show answer</summary><div class="ans"><span class="final">\(8 - 5i\)</span></div></details></li>
-    <li><span class="num">26.</span> Multiply \((2 - 3i)(4 + i)\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(8 + 2i - 12i - 3i^2 = 8 - 10i + 3 = \)<span class="final"> \(11 - 10i\)</span></div></details></li>
-    <li><span class="num">27.</span> Simplify \(i^{23}\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(23 \div 4\) has remainder 3, so \(i^{23} = i^3 = \)<span class="final"> \(-i\)</span></div></details></li>
-    <li><span class="num">28.</span> Simplify \(\sqrt{-8}\cdot\sqrt{-2}\).
-      <details><summary>Show answer</summary><div class="ans">
-        \((2i\sqrt2)(i\sqrt2) = 2i^2\cdot 2 = \)<span class="final"> \(-4\)</span><br>
-        <span class="trap">Trap: \(\sqrt{-8}\cdot\sqrt{-2} \ne \sqrt{16} = 4\). Pull out the \(i\) first.</span></div></details></li>
+    <li><span class="num">25.</span> Simplify \((3 + 2i) + (5 - 7i)\).</li>
+    <li><span class="num">26.</span> Multiply \((2 - 3i)(4 + i)\).</li>
+    <li><span class="num">27.</span> Simplify \(i^{23}\).</li>
+    <li><span class="num">28.</span> Simplify \(\sqrt{-8}\cdot\sqrt{-2}\).</li>
   </ol>
 </section>
 
@@ -300,14 +263,9 @@
   <h2>6 · Applications</h2>
   <ol class="problems">
     <li><span class="num">29.</span> A ball is thrown from a 48-ft platform. Its height is \(h = -16t^2 + 32t + 48\), where \(t\) is in seconds.
-      (a) When does it hit the ground? (b) What is its maximum height?
-      <details><summary>Show answer</summary><div class="ans">
-        (a) \(-16(t^2 - 2t - 3) = 0 \Rightarrow -16(t-3)(t+1) = 0\). Time can't be negative, so <span class="final">\(t = 3\) seconds</span>.<br>
-        (b) The vertex is at \(t = -\dfrac{b}{2a} = -\dfrac{32}{-32} = 1\), and \(h(1) = -16 + 32 + 48 = \)<span class="final"> 64 ft</span>.</div></details></li>
+      (a) When does it hit the ground? (b) What is its maximum height?</li>
     <li><span class="num">30.</span> The distance \(d\) (miles) you can see to the horizon from a height of \(h\) feet is \(d = \sqrt{1.5h}\).
-      How high must you be to see 6 miles?
-      <details><summary>Show answer</summary><div class="ans">
-        \(6 = \sqrt{1.5h} \Rightarrow 36 = 1.5h \Rightarrow\)<span class="final"> \(h = 24\) ft</span></div></details></li>
+      How high must you be to see 6 miles?</li>
   </ol>
 </section>
 
@@ -330,18 +288,7 @@
 </aside>
 
 <script>
-  const all = () => document.querySelectorAll('details');
-  document.getElementById('showAll').onclick = () => all().forEach(d => d.open = true);
-  document.getElementById('hideAll').onclick = () => all().forEach(d => d.open = false);
-  document.getElementById('printQ').onclick = () => {
-    document.body.classList.add('no-answers'); window.print();
-    document.body.classList.remove('no-answers');
-  };
-  document.getElementById('printA').onclick = () => {
-    const prev = [...all()].map(d => d.open);
-    all().forEach(d => d.open = true); window.print();
-    all().forEach((d, i) => d.open = prev[i]);
-  };
+  document.getElementById('printQ').onclick = () => window.print();
   /* ---------- Scratch pad ---------- */
   (() => {
     const body = document.body, canvas = document.getElementById('padCanvas');
@@ -409,5 +356,6 @@
     document.getElementById('clear').onclick = () => { strokes.length = 0; redraw(); };
   })();
 </script>
+<script src="checker.js"></script>
 </body>
 </html>
