@@ -1,6 +1,6 @@
 # Algebra 2B · Unit 2 Quiz 2 Review: Radicals & Quadratics
 
-An interactive review page (`index.html`) with 33 practice problems and a built-in scratch pad and worked answers you can show or hide.
+An interactive review page (`index.html`) with 33 practice problems, worked answers you can show or hide, and a built-in scratch pad.
 
 | Section | Topics | Problems |
 |---|---|---|
