@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Algebra 2B Radicals &amp; Quadratics Review</title>
+<script>
+  window.MathJax = { tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] } };
+</script>
+<script async src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-mml-chtml.js"></script>
+<style>
+  :root {
+    --bg: #f7f7f5; --card: #ffffff; --text: #1d1d1f; --muted: #5b5b63;
+    --accent: #1f5fae; --accent-soft: #e6eefa; --border: #dcdce0;
+    --good: #1f7a3d; --warn: #a35200;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #141416; --card: #1e1e22; --text: #ececf0; --muted: #a3a3ad;
+      --accent: #7fb0ff; --accent-soft: #1f2a3d; --border: #33333a;
+      --good: #6fd08f; --warn: #ffb067;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 17px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+  header h1 { margin: 0 0 4px; font-size: 1.8rem; }
+  header p { margin: 0; color: var(--muted); }
+  nav.toc { margin: 20px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  nav.toc a {
+    text-decoration: none; color: var(--accent); background: var(--accent-soft);
+    padding: 4px 10px; border-radius: 999px; font-size: .9rem;
+  }
+  .controls { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
+  button {
+    font: inherit; font-size: .9rem; cursor: pointer; border-radius: 8px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text); padding: 6px 12px;
+  }
+  button:hover { border-color: var(--accent); }
+  section { margin-top: 36px; }
+  section > h2 { font-size: 1.35rem; border-bottom: 2px solid var(--accent); padding-bottom: 4px; }
+  .notes {
+    background: var(--accent-soft); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+  }
+  .notes ul { margin: 6px 0; padding-left: 20px; }
+  ol.problems { padding-left: 0; list-style: none; counter-reset: none; }
+  ol.problems > li {
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 12px;
+  }
+  .num { font-weight: 700; color: var(--accent); margin-right: 6px; }
+  details { margin-top: 8px; }
+  summary { cursor: pointer; color: var(--accent); font-size: .92rem; }
+  .ans { margin-top: 6px; padding-left: 12px; border-left: 3px solid var(--good); overflow-x: auto; }
+  .ans .final { font-weight: 700; color: var(--good); }
+  .trap { color: var(--warn); font-size: .92rem; }
+  mjx-container { overflow-x: auto; overflow-y: hidden; max-width: 100%; }
+  footer { margin-top: 48px; color: var(--muted); font-size: .85rem; }
+  @media print {
+    body { background: #fff; color: #000; font-size: 12pt; }
+    nav.toc, .controls, summary { display: none; }
+    ol.problems > li { break-inside: avoid; border-color: #999; }
+    body.no-answers details { display: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Algebra 2B · Unit 2 Quiz 2 Review</h1>
+  <p>Radicals &amp; Quadratics. Try each problem first, then open “Show answer” to check your work.</p>
+</header>
+
+<nav class="toc" aria-label="Sections">
+  <a href="#simplify">1 · Simplifying Radicals</a>
+  <a href="#operations">2 · Radical Operations</a>
+  <a href="#exponents">3 · Rational Exponents</a>
+  <a href="#radeq">4 · Radical Equations</a>
+  <a href="#quad">5 · Solving Quadratics</a>
+  <a href="#complex">6 · Complex Numbers</a>
+  <a href="#apply">7 · Applications</a>
+</nav>
+
+<div class="controls">
+  <button id="showAll" type="button">Show all answers</button>
+  <button id="hideAll" type="button">Hide all answers</button>
+  <button id="printQ" type="button">Print (questions only)</button>
+  <button id="printA" type="button">Print (with answer key)</button>
+</div>
+
+<!-- ============ 1 ============ -->
+<section id="simplify">
+  <h2>1 · Simplifying Radicals</h2>
+  <div class="notes">
+    <strong>Key ideas</strong>
+    <ul>
+      <li>Pull out perfect squares (for \(\sqrt{\ }\)) or perfect cubes (for \(\sqrt[3]{\ }\)): \(\sqrt{ab}=\sqrt a\,\sqrt b\).</li>
+      <li>For variables, divide the exponent by the index. The quotient comes out and the remainder stays in.</li>
+      <li>\(\sqrt{-1} = i\), so \(\sqrt{-a} = i\sqrt a\) for \(a&gt;0\).</li>
+    </ul>
+    <em>Assume all variables are nonnegative.</em>
+  </div>
+  <ol class="problems">
+    <li><span class="num">1.</span> Simplify \(\sqrt{72}\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(\sqrt{36\cdot 2} = \)<span class="final"> \(6\sqrt2\)</span></div></details></li>
+    <li><span class="num">2.</span> Simplify \(\sqrt{50x^3y^4}\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(\sqrt{25\cdot 2\cdot x^2\cdot x\cdot y^4} = \)<span class="final"> \(5xy^2\sqrt{2x}\)</span></div></details></li>
+    <li><span class="num">3.</span> Simplify \(\sqrt[3]{54}\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(\sqrt[3]{27\cdot 2} = \)<span class="final"> \(3\sqrt[3]{2}\)</span></div></details></li>
+    <li><span class="num">4.</span> Simplify \(\sqrt[3]{-16a^5b^6}\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(\sqrt[3]{(-8)\cdot 2\cdot a^3\cdot a^2\cdot b^6} = \)<span class="final"> \(-2ab^2\sqrt[3]{2a^2}\)</span><br>
+        <span class="trap">A cube root of a negative number is real and negative.</span></div></details></li>
+    <li><span class="num">5.</span> Simplify \(\sqrt{-49}\) and \(\sqrt{-20}\).
+      <details><summary>Show answer</summary><div class="ans">
+        <span class="final">\(7i\)</span> and \(\sqrt{-1}\cdot\sqrt{4\cdot5} = \)<span class="final"> \(2i\sqrt5\)</span></div></details></li>
+  </ol>
+</section>
+
+<!-- ============ 2 ============ -->
+<section id="operations">
+  <h2>2 · Operations with Radicals</h2>
+  <div class="notes">
+    <strong>Key ideas</strong>
+    <ul>
+      <li>Add or subtract only <em>like radicals</em> (same index and same radicand). Simplify first.</li>
+      <li>Multiply: \(\sqrt a\cdot\sqrt b=\sqrt{ab}\). Use FOIL for binomials.</li>
+      <li>Rationalize: no radicals in the denominator. For a binomial denominator, multiply by the <strong>conjugate</strong>.</li>
+    </ul>
+  </div>
+  <ol class="problems">
+    <li><span class="num">6.</span> Simplify \(3\sqrt{12} + 5\sqrt{27} - \sqrt{48}\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(3(2\sqrt3) + 5(3\sqrt3) - 4\sqrt3 = 6\sqrt3 + 15\sqrt3 - 4\sqrt3 = \)<span class="final"> \(17\sqrt3\)</span></div></details></li>
+    <li><span class="num">7.</span> Simplify \(\sqrt6\cdot\sqrt{15}\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(\sqrt{90} = \sqrt{9\cdot10} = \)<span class="final"> \(3\sqrt{10}\)</span></div></details></li>
+    <li><span class="num">8.</span> Multiply \((2+\sqrt3)(4-\sqrt3)\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(8 - 2\sqrt3 + 4\sqrt3 - 3 = \)<span class="final"> \(5 + 2\sqrt3\)</span></div></details></li>
+    <li><span class="num">9.</span> Expand \((\sqrt5 - 2)^2\).
+      <details><summary>Show answer</summary><div class="ans">
+        \((\sqrt5)^2 - 2(2)\sqrt5 + 4 = 5 - 4\sqrt5 + 4 = \)<span class="final"> \(9 - 4\sqrt5\)</span><br>
+        <span class="trap">Common error: \((\sqrt5-2)^2 \ne 5 + 4\). Don't forget the middle term.</span></div></details></li>
+    <li><span class="num">10.</span> Rationalize \(\dfrac{6}{\sqrt3}\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(\dfrac{6}{\sqrt3}\cdot\dfrac{\sqrt3}{\sqrt3} = \dfrac{6\sqrt3}{3} = \)<span class="final"> \(2\sqrt3\)</span></div></details></li>
+    <li><span class="num">11.</span> Rationalize \(\dfrac{5}{3-\sqrt2}\).
+      <details><summary>Show answer</summary><div class="ans">
+        Multiply by the conjugate \(\dfrac{3+\sqrt2}{3+\sqrt2}\):
+        \(\dfrac{5(3+\sqrt2)}{9-2} = \)<span class="final"> \(\dfrac{15+5\sqrt2}{7}\)</span></div></details></li>
+    <li><span class="num">12.</span> Simplify \(\dfrac{\sqrt{18x^5}}{\sqrt{2x}}\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(\sqrt{\dfrac{18x^5}{2x}} = \sqrt{9x^4} = \)<span class="final"> \(3x^2\)</span></div></details></li>
+  </ol>
+</section>
+
+<!-- ============ 3 ============ -->
+<section id="exponents">
+  <h2>3 · Rational Exponents</h2>
+  <div class="notes">
+    <strong>Key idea:</strong> \(a^{m/n} = \left(\sqrt[n]{a}\right)^m = \sqrt[n]{a^m}\), and \(a^{-k} = \dfrac{1}{a^k}\).
+    The denominator is the root (“power over root”).
+  </div>
+  <ol class="problems">
+    <li><span class="num">13.</span> Evaluate \(27^{2/3}\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(\left(\sqrt[3]{27}\right)^2 = 3^2 = \)<span class="final"> \(9\)</span></div></details></li>
+    <li><span class="num">14.</span> Evaluate \(16^{-3/4}\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(\dfrac{1}{16^{3/4}} = \dfrac{1}{\left(\sqrt[4]{16}\right)^3} = \dfrac{1}{2^3} = \)<span class="final"> \(\dfrac18\)</span></div></details></li>
+    <li><span class="num">15.</span> (a) Write \(\sqrt[4]{x^3}\) in exponent form. (b) Write \(y^{2/5}\) in radical form.
+      <details><summary>Show answer</summary><div class="ans">
+        (a) <span class="final">\(x^{3/4}\)</span> &nbsp; (b) <span class="final">\(\sqrt[5]{y^2}\)</span></div></details></li>
+  </ol>
+</section>
+
+<!-- ============ 4 ============ -->
+<section id="radeq">
+  <h2>4 · Solving Radical Equations</h2>
+  <div class="notes">
+    <strong>Steps</strong>
+    <ul>
+      <li>Isolate the radical.</li>
+      <li>Raise both sides to the index power (square for \(\sqrt{\ }\), cube for \(\sqrt[3]{\ }\)).</li>
+      <li>Solve, then <strong>check every answer in the original equation</strong>. Squaring can create <em>extraneous</em> solutions.</li>
+      <li>If an isolated square root equals a negative number, there is no solution.</li>
+    </ul>
+  </div>
+  <ol class="problems">
+    <li><span class="num">16.</span> Solve \(\sqrt{x+5} = 4\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(x+5 = 16 \Rightarrow\)<span class="final"> \(x = 11\)</span>. Check: \(\sqrt{16}=4\) ✓</div></details></li>
+    <li><span class="num">17.</span> Solve \(\sqrt{2x-3} + 2 = 7\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(\sqrt{2x-3} = 5 \Rightarrow 2x-3 = 25 \Rightarrow\)<span class="final"> \(x = 14\)</span>. Check: \(\sqrt{25}+2 = 7\) ✓</div></details></li>
+    <li><span class="num">18.</span> Solve \(\sqrt{x+7} = x - 5\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(x+7 = x^2 - 10x + 25 \Rightarrow x^2 - 11x + 18 = 0 \Rightarrow (x-9)(x-2) = 0\)<br>
+        Check \(x=9\): \(\sqrt{16} = 4 = 9-5\) ✓<br>
+        Check \(x=2\): \(\sqrt9 = 3 \ne 2-5 = -3\) ✗ (extraneous)<br>
+        <span class="final">\(x = 9\)</span></div></details></li>
+    <li><span class="num">19.</span> Solve \(\sqrt[3]{x-4} = -3\).
+      <details><summary>Show answer</summary><div class="ans">
+        Cube both sides: \(x - 4 = -27 \Rightarrow\)<span class="final"> \(x = -23\)</span></div></details></li>
+    <li><span class="num">20.</span> Solve \(\sqrt{x+3} + 5 = 2\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(\sqrt{x+3} = -3\). A principal square root can't be negative, so there is <span class="final">no solution</span>.<br>
+        <span class="trap">If you square anyway, you get \(x = 6\), but it fails the check: \(\sqrt9 + 5 = 8 \ne 2\).</span></div></details></li>
+  </ol>
+</section>
+
+<!-- ============ 5 ============ -->
+<section id="quad">
+  <h2>5 · Solving Quadratic Equations</h2>
+  <div class="notes">
+    <strong>Methods</strong>
+    <ul>
+      <li><strong>Factoring:</strong> set equal to 0, factor, and use the zero product property.</li>
+      <li><strong>Square roots:</strong> isolate the squared part, then take \(\pm\sqrt{\ }\).</li>
+      <li><strong>Completing the square:</strong> for \(x^2+bx\), add \(\left(\tfrac b2\right)^2\) to both sides.</li>
+      <li><strong>Quadratic formula:</strong> \(x = \dfrac{-b \pm \sqrt{b^2-4ac}}{2a}\)</li>
+      <li><strong>Discriminant</strong> \(b^2-4ac\): positive means 2 real solutions, zero means 1 real (repeated) solution, negative means 2 complex (imaginary) solutions.</li>
+    </ul>
+  </div>
+  <ol class="problems">
+    <li><span class="num">21.</span> Solve by factoring: \(x^2 - 5x - 24 = 0\).
+      <details><summary>Show answer</summary><div class="ans">
+        \((x-8)(x+3) = 0 \Rightarrow\)<span class="final"> \(x = 8,\ x = -3\)</span></div></details></li>
+    <li><span class="num">22.</span> Solve by factoring: \(2x^2 + 7x + 3 = 0\).
+      <details><summary>Show answer</summary><div class="ans">
+        \((2x+1)(x+3) = 0 \Rightarrow\)<span class="final"> \(x = -\tfrac12,\ x = -3\)</span></div></details></li>
+    <li><span class="num">23.</span> Solve using square roots: \(3(x-2)^2 = 48\).
+      <details><summary>Show answer</summary><div class="ans">
+        \((x-2)^2 = 16 \Rightarrow x - 2 = \pm 4 \Rightarrow\)<span class="final"> \(x = 6,\ x = -2\)</span></div></details></li>
+    <li><span class="num">24.</span> Solve: \(x^2 + 25 = 0\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(x^2 = -25 \Rightarrow x = \pm\sqrt{-25} = \)<span class="final"> \(\pm 5i\)</span></div></details></li>
+    <li><span class="num">25.</span> Solve by completing the square: \(x^2 + 6x - 7 = 0\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(x^2 + 6x = 7 \Rightarrow x^2 + 6x + 9 = 16 \Rightarrow (x+3)^2 = 16\)<br>
+        \(x + 3 = \pm4 \Rightarrow\)<span class="final"> \(x = 1,\ x = -7\)</span></div></details></li>
+    <li><span class="num">26.</span> Solve by completing the square: \(x^2 - 4x - 1 = 0\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(x^2 - 4x + 4 = 1 + 4 \Rightarrow (x-2)^2 = 5 \Rightarrow\)<span class="final"> \(x = 2 \pm \sqrt5\)</span></div></details></li>
+    <li><span class="num">27.</span> Solve with the quadratic formula: \(2x^2 - 3x - 4 = 0\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(a=2,\ b=-3,\ c=-4\)<br>
+        \(x = \dfrac{3 \pm \sqrt{9 + 32}}{4} = \)<span class="final"> \(\dfrac{3 \pm \sqrt{41}}{4}\)</span></div></details></li>
+    <li><span class="num">28.</span> Solve with the quadratic formula: \(x^2 - 2x + 5 = 0\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(x = \dfrac{2 \pm \sqrt{4 - 20}}{2} = \dfrac{2 \pm \sqrt{-16}}{2} = \dfrac{2 \pm 4i}{2} = \)<span class="final"> \(1 \pm 2i\)</span></div></details></li>
+    <li><span class="num">29.</span> Use the discriminant to describe the solutions of \(4x^2 - 12x + 9 = 0\).
+      <details><summary>Show answer</summary><div class="ans">
+        \((-12)^2 - 4(4)(9) = 144 - 144 = 0 \Rightarrow\)<span class="final"> one real (repeated) solution</span></div></details></li>
+    <li><span class="num">30.</span> Use the discriminant to describe the solutions of \(3x^2 + x + 2 = 0\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(1^2 - 4(3)(2) = 1 - 24 = -23 &lt; 0 \Rightarrow\)<span class="final"> two complex (imaginary) solutions</span></div></details></li>
+    <li><span class="num">31.</span> Write \(y = x^2 + 8x + 10\) in vertex form and name the vertex.
+      <details><summary>Show answer</summary><div class="ans">
+        \(y = (x^2 + 8x + 16) + 10 - 16 = \)<span class="final"> \((x+4)^2 - 6\)</span>, vertex <span class="final">\((-4,\,-6)\)</span></div></details></li>
+  </ol>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="complex">
+  <h2>6 · Complex Numbers</h2>
+  <div class="notes">
+    <strong>Key ideas:</strong> \(i = \sqrt{-1}\), \(i^2 = -1\), \(i^3 = -i\), \(i^4 = 1\). The powers repeat every 4.
+    Always rewrite \(\sqrt{-a}\) as \(i\sqrt a\) <em>before</em> multiplying.
+  </div>
+  <ol class="problems">
+    <li><span class="num">32.</span> Simplify \((3 + 2i) + (5 - 7i)\).
+      <details><summary>Show answer</summary><div class="ans"><span class="final">\(8 - 5i\)</span></div></details></li>
+    <li><span class="num">33.</span> Multiply \((2 - 3i)(4 + i)\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(8 + 2i - 12i - 3i^2 = 8 - 10i + 3 = \)<span class="final"> \(11 - 10i\)</span></div></details></li>
+    <li><span class="num">34.</span> Simplify \(i^{23}\).
+      <details><summary>Show answer</summary><div class="ans">
+        \(23 \div 4\) has remainder 3, so \(i^{23} = i^3 = \)<span class="final"> \(-i\)</span></div></details></li>
+    <li><span class="num">35.</span> Simplify \(\sqrt{-8}\cdot\sqrt{-2}\).
+      <details><summary>Show answer</summary><div class="ans">
+        \((2i\sqrt2)(i\sqrt2) = 2i^2\cdot 2 = \)<span class="final"> \(-4\)</span><br>
+        <span class="trap">Trap: \(\sqrt{-8}\cdot\sqrt{-2} \ne \sqrt{16} = 4\). Pull out the \(i\) first.</span></div></details></li>
+  </ol>
+</section>
+
+<!-- ============ 7 ============ -->
+<section id="apply">
+  <h2>7 · Applications</h2>
+  <ol class="problems">
+    <li><span class="num">36.</span> A ball is thrown from a 48-ft platform. Its height is \(h = -16t^2 + 32t + 48\), where \(t\) is in seconds.
+      (a) When does it hit the ground? (b) What is its maximum height?
+      <details><summary>Show answer</summary><div class="ans">
+        (a) \(-16(t^2 - 2t - 3) = 0 \Rightarrow -16(t-3)(t+1) = 0\). Time can't be negative, so <span class="final">\(t = 3\) seconds</span>.<br>
+        (b) The vertex is at \(t = -\dfrac{b}{2a} = -\dfrac{32}{-32} = 1\), and \(h(1) = -16 + 32 + 48 = \)<span class="final"> 64 ft</span>.</div></details></li>
+    <li><span class="num">37.</span> The distance \(d\) (miles) you can see to the horizon from a height of \(h\) feet is \(d = \sqrt{1.5h}\).
+      How high must you be to see 6 miles?
+      <details><summary>Show answer</summary><div class="ans">
+        \(6 = \sqrt{1.5h} \Rightarrow 36 = 1.5h \Rightarrow\)<span class="final"> \(h = 24\) ft</span></div></details></li>
+  </ol>
+</section>
+
+<footer>Algebra 2B · Unit 2 Quiz 2 Review: Radicals &amp; Quadratics</footer>
+</div>
+
+<script>
+  const all = () => document.querySelectorAll('details');
+  document.getElementById('showAll').onclick = () => all().forEach(d => d.open = true);
+  document.getElementById('hideAll').onclick = () => all().forEach(d => d.open = false);
+  document.getElementById('printQ').onclick = () => {
+    document.body.classList.add('no-answers'); window.print();
+    document.body.classList.remove('no-answers');
+  };
+  document.getElementById('printA').onclick = () => {
+    const prev = [...all()].map(d => d.open);
+    all().forEach(d => d.open = true); window.print();
+    all().forEach((d, i) => d.open = prev[i]);
+  };
+</script>
+</body>
+</html>
