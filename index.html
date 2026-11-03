@@ -65,13 +65,53 @@
     ol.problems > li { break-inside: avoid; border-color: #999; }
     body.no-answers details { display: none; }
   }
+  /* ---------- Scratch pad ---------- */
+  :root { --pad-w: min(42vw, 560px); }
+  #pad {
+    position: fixed; top: 0; right: 0; bottom: 0; width: var(--pad-w); z-index: 20;
+    display: flex; flex-direction: column; background: var(--card);
+    border-left: 1px solid var(--border); box-shadow: -4px 0 16px rgba(0,0,0,.08);
+    transition: transform .25s ease;
+  }
+  #pad .bar {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 6px;
+    padding: 8px 10px; border-bottom: 1px solid var(--border);
+  }
+  #pad .bar strong { margin-right: auto; font-size: .95rem; }
+  #pad .bar button { padding: 6px 10px; min-width: 40px; min-height: 40px; }
+  #pad .bar button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .swatch { width: 18px; height: 18px; border-radius: 50%; display: inline-block; vertical-align: middle; }
+  #padCanvas {
+    flex: 1; width: 100%; display: block; touch-action: none; cursor: crosshair;
+    background-color: #fffef8;
+    background-image: linear-gradient(#e3e8f0 1px, transparent 1px), linear-gradient(90deg, #e3e8f0 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  #padToggle {
+    position: fixed; right: 16px; bottom: 16px; z-index: 30; padding: 12px 16px;
+    border-radius: 999px; background: var(--accent); color: #fff; border: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,.25); font-weight: 600;
+  }
+  /* Wide screens: pad docked on the right, content shifts left */
+  @media (min-width: 800px) {
+    body.pad-open { padding-right: var(--pad-w); }
+    body:not(.pad-open) #pad { transform: translateX(100%); }
+    body.pad-open #padToggle { display: none; }
+  }
+  /* Phones / small tablets: pad slides in from the right over the page */
+  @media (max-width: 799.98px) {
+    :root { --pad-w: 92vw; }
+    body:not(.pad-open) #pad { transform: translateX(100%); }
+    body.pad-open #padToggle { display: none; }
+  }
+  @media print { #pad, #padToggle { display: none !important; } body { padding-right: 0 !important; } }
 </style>
 </head>
 <body>
 <div class="wrap">
 <header>
   <h1>Algebra 2B · Unit 2 Quiz 2 Review</h1>
-  <p>Radicals &amp; Quadratics. Try each problem first, then open “Show answer” to check your work.</p>
+  <p>Radicals &amp; Quadratics. Work each problem on the scratch pad, then open “Show answer” to check your work.</p>
 </header>
 
 <nav class="toc" aria-label="Sections">
@@ -225,8 +265,6 @@
       <li><strong>Factoring:</strong> set equal to 0, factor, and use the zero product property.</li>
       <li><strong>Square roots:</strong> isolate the squared part, then take \(\pm\sqrt{\ }\).</li>
       <li><strong>Completing the square:</strong> for \(x^2+bx\), add \(\left(\tfrac b2\right)^2\) to both sides.</li>
-      <li><strong>Quadratic formula:</strong> \(x = \dfrac{-b \pm \sqrt{b^2-4ac}}{2a}\)</li>
-      <li><strong>Discriminant</strong> \(b^2-4ac\): positive means 2 real solutions, zero means 1 real (repeated) solution, negative means 2 complex (imaginary) solutions.</li>
     </ul>
   </div>
   <ol class="problems">
@@ -249,20 +287,7 @@
     <li><span class="num">26.</span> Solve by completing the square: \(x^2 - 4x - 1 = 0\).
       <details><summary>Show answer</summary><div class="ans">
         \(x^2 - 4x + 4 = 1 + 4 \Rightarrow (x-2)^2 = 5 \Rightarrow\)<span class="final"> \(x = 2 \pm \sqrt5\)</span></div></details></li>
-    <li><span class="num">27.</span> Solve with the quadratic formula: \(2x^2 - 3x - 4 = 0\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(a=2,\ b=-3,\ c=-4\)<br>
-        \(x = \dfrac{3 \pm \sqrt{9 + 32}}{4} = \)<span class="final"> \(\dfrac{3 \pm \sqrt{41}}{4}\)</span></div></details></li>
-    <li><span class="num">28.</span> Solve with the quadratic formula: \(x^2 - 2x + 5 = 0\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(x = \dfrac{2 \pm \sqrt{4 - 20}}{2} = \dfrac{2 \pm \sqrt{-16}}{2} = \dfrac{2 \pm 4i}{2} = \)<span class="final"> \(1 \pm 2i\)</span></div></details></li>
-    <li><span class="num">29.</span> Use the discriminant to describe the solutions of \(4x^2 - 12x + 9 = 0\).
-      <details><summary>Show answer</summary><div class="ans">
-        \((-12)^2 - 4(4)(9) = 144 - 144 = 0 \Rightarrow\)<span class="final"> one real (repeated) solution</span></div></details></li>
-    <li><span class="num">30.</span> Use the discriminant to describe the solutions of \(3x^2 + x + 2 = 0\).
-      <details><summary>Show answer</summary><div class="ans">
-        \(1^2 - 4(3)(2) = 1 - 24 = -23 &lt; 0 \Rightarrow\)<span class="final"> two complex (imaginary) solutions</span></div></details></li>
-    <li><span class="num">31.</span> Write \(y = x^2 + 8x + 10\) in vertex form and name the vertex.
+    <li><span class="num">27.</span> Write \(y = x^2 + 8x + 10\) in vertex form and name the vertex.
       <details><summary>Show answer</summary><div class="ans">
         \(y = (x^2 + 8x + 16) + 10 - 16 = \)<span class="final"> \((x+4)^2 - 6\)</span>, vertex <span class="final">\((-4,\,-6)\)</span></div></details></li>
   </ol>
@@ -276,15 +301,15 @@
     Always rewrite \(\sqrt{-a}\) as \(i\sqrt a\) <em>before</em> multiplying.
   </div>
   <ol class="problems">
-    <li><span class="num">32.</span> Simplify \((3 + 2i) + (5 - 7i)\).
+    <li><span class="num">28.</span> Simplify \((3 + 2i) + (5 - 7i)\).
       <details><summary>Show answer</summary><div class="ans"><span class="final">\(8 - 5i\)</span></div></details></li>
-    <li><span class="num">33.</span> Multiply \((2 - 3i)(4 + i)\).
+    <li><span class="num">29.</span> Multiply \((2 - 3i)(4 + i)\).
       <details><summary>Show answer</summary><div class="ans">
         \(8 + 2i - 12i - 3i^2 = 8 - 10i + 3 = \)<span class="final"> \(11 - 10i\)</span></div></details></li>
-    <li><span class="num">34.</span> Simplify \(i^{23}\).
+    <li><span class="num">30.</span> Simplify \(i^{23}\).
       <details><summary>Show answer</summary><div class="ans">
         \(23 \div 4\) has remainder 3, so \(i^{23} = i^3 = \)<span class="final"> \(-i\)</span></div></details></li>
-    <li><span class="num">35.</span> Simplify \(\sqrt{-8}\cdot\sqrt{-2}\).
+    <li><span class="num">31.</span> Simplify \(\sqrt{-8}\cdot\sqrt{-2}\).
       <details><summary>Show answer</summary><div class="ans">
         \((2i\sqrt2)(i\sqrt2) = 2i^2\cdot 2 = \)<span class="final"> \(-4\)</span><br>
         <span class="trap">Trap: \(\sqrt{-8}\cdot\sqrt{-2} \ne \sqrt{16} = 4\). Pull out the \(i\) first.</span></div></details></li>
@@ -295,12 +320,12 @@
 <section id="apply">
   <h2>7 · Applications</h2>
   <ol class="problems">
-    <li><span class="num">36.</span> A ball is thrown from a 48-ft platform. Its height is \(h = -16t^2 + 32t + 48\), where \(t\) is in seconds.
+    <li><span class="num">32.</span> A ball is thrown from a 48-ft platform. Its height is \(h = -16t^2 + 32t + 48\), where \(t\) is in seconds.
       (a) When does it hit the ground? (b) What is its maximum height?
       <details><summary>Show answer</summary><div class="ans">
         (a) \(-16(t^2 - 2t - 3) = 0 \Rightarrow -16(t-3)(t+1) = 0\). Time can't be negative, so <span class="final">\(t = 3\) seconds</span>.<br>
         (b) The vertex is at \(t = -\dfrac{b}{2a} = -\dfrac{32}{-32} = 1\), and \(h(1) = -16 + 32 + 48 = \)<span class="final"> 64 ft</span>.</div></details></li>
-    <li><span class="num">37.</span> The distance \(d\) (miles) you can see to the horizon from a height of \(h\) feet is \(d = \sqrt{1.5h}\).
+    <li><span class="num">33.</span> The distance \(d\) (miles) you can see to the horizon from a height of \(h\) feet is \(d = \sqrt{1.5h}\).
       How high must you be to see 6 miles?
       <details><summary>Show answer</summary><div class="ans">
         \(6 = \sqrt{1.5h} \Rightarrow 36 = 1.5h \Rightarrow\)<span class="final"> \(h = 24\) ft</span></div></details></li>
@@ -309,6 +334,21 @@
 
 <footer>Algebra 2B · Unit 2 Quiz 2 Review: Radicals &amp; Quadratics</footer>
 </div>
+
+<button id="padToggle" type="button" aria-controls="pad">✏️ Scratch pad</button>
+<aside id="pad" aria-label="Scratch pad">
+  <div class="bar">
+    <strong>Scratch pad</strong>
+    <button type="button" data-color="#1d1d1f" aria-pressed="true" title="Black pen"><span class="swatch" style="background:#1d1d1f"></span></button>
+    <button type="button" data-color="#1f5fae" aria-pressed="false" title="Blue pen"><span class="swatch" style="background:#1f5fae"></span></button>
+    <button type="button" data-color="#c62828" aria-pressed="false" title="Red pen"><span class="swatch" style="background:#c62828"></span></button>
+    <button type="button" id="eraser" aria-pressed="false" title="Eraser">Eraser</button>
+    <button type="button" id="undo" title="Undo">Undo</button>
+    <button type="button" id="clear" title="Clear the pad">Clear</button>
+    <button type="button" id="padClose" title="Hide scratch pad">Hide ✕</button>
+  </div>
+  <canvas id="padCanvas" aria-label="Drawing area: use your finger, stylus, or mouse"></canvas>
+</aside>
 
 <script>
   const all = () => document.querySelectorAll('details');
@@ -323,6 +363,72 @@
     all().forEach(d => d.open = true); window.print();
     all().forEach((d, i) => d.open = prev[i]);
   };
+  /* ---------- Scratch pad ---------- */
+  (() => {
+    const body = document.body, canvas = document.getElementById('padCanvas');
+    const ctx = canvas.getContext('2d');
+    const strokes = [];               // each: {color, erase, width, pts:[[x,y],...]} in CSS px
+    let color = '#1d1d1f', erasing = false, current = null, activeId = null;
+
+    // Open by default on wide screens, closed on phones
+    if (window.matchMedia('(min-width: 800px)').matches) body.classList.add('pad-open');
+    const setOpen = open => { body.classList.toggle('pad-open', open); requestAnimationFrame(resize); };
+    document.getElementById('padToggle').onclick = () => setOpen(true);
+    document.getElementById('padClose').onclick = () => setOpen(false);
+
+    function drawStroke(s) {
+      ctx.save();
+      ctx.globalCompositeOperation = s.erase ? 'destination-out' : 'source-over';
+      ctx.strokeStyle = s.color; ctx.fillStyle = s.color; ctx.lineWidth = s.width;
+      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+      const p = s.pts;
+      if (p.length === 1) { ctx.beginPath(); ctx.arc(p[0][0], p[0][1], s.width / 2, 0, Math.PI * 2); ctx.fill(); }
+      else {
+        ctx.beginPath(); ctx.moveTo(p[0][0], p[0][1]);
+        for (let i = 1; i < p.length - 1; i++) {
+          const mx = (p[i][0] + p[i + 1][0]) / 2, my = (p[i][1] + p[i + 1][1]) / 2;
+          ctx.quadraticCurveTo(p[i][0], p[i][1], mx, my);
+        }
+        const last = p[p.length - 1]; ctx.lineTo(last[0], last[1]); ctx.stroke();
+      }
+      ctx.restore();
+    }
+    function redraw() {
+      ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const dpr = window.devicePixelRatio || 1; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      strokes.forEach(drawStroke);
+    }
+    function resize() {
+      const r = canvas.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
+      if (!r.width || !r.height) return;
+      canvas.width = Math.round(r.width * dpr); canvas.height = Math.round(r.height * dpr);
+      redraw();
+    }
+    window.addEventListener('resize', resize); resize();
+
+    const pos = e => { const r = canvas.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+    canvas.addEventListener('pointerdown', e => {
+      if (activeId !== null) return;        // ignore a second finger / resting palm
+      activeId = e.pointerId; canvas.setPointerCapture(e.pointerId);
+      current = { color, erase: erasing, width: erasing ? 28 : 3, pts: [pos(e)] };
+      strokes.push(current); drawStroke(current); e.preventDefault();
+    });
+    canvas.addEventListener('pointermove', e => {
+      if (e.pointerId !== activeId || !current) return;
+      const evs = e.getCoalescedEvents ? e.getCoalescedEvents() : [e];
+      evs.forEach(ev => current.pts.push(pos(ev)));
+      redraw(); e.preventDefault();
+    });
+    const end = e => { if (e.pointerId === activeId) { activeId = null; current = null; } };
+    canvas.addEventListener('pointerup', end); canvas.addEventListener('pointercancel', end);
+
+    const penBtns = document.querySelectorAll('#pad [data-color]'), eraserBtn = document.getElementById('eraser');
+    const press = btn => { [...penBtns, eraserBtn].forEach(b => b.setAttribute('aria-pressed', b === btn)); };
+    penBtns.forEach(b => b.onclick = () => { color = b.dataset.color; erasing = false; press(b); });
+    eraserBtn.onclick = () => { erasing = true; press(eraserBtn); };
+    document.getElementById('undo').onclick = () => { strokes.pop(); redraw(); };
+    document.getElementById('clear').onclick = () => { strokes.length = 0; redraw(); };
+  })();
 </script>
 </body>
 </html>
