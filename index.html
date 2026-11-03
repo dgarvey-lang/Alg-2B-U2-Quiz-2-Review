@@ -134,7 +134,7 @@
 
 <nav class="toc" aria-label="Sections">
   <a href="#simplify">1 · Simplifying Radicals</a>
-  <a href="#operations">2 · Radical Operations</a>
+  <a href="#operations">2 · Rationalizing</a>
   <a href="#radeq">3 · Radical Equations</a>
   <a href="#quad">4 · Solving Quadratics</a>
   <a href="#complex">5 · Complex Numbers</a>
@@ -149,7 +149,7 @@
 <div class="howto">
   <strong>How to enter answers</strong>
   <ul>
-    <li>Use the buttons under each answer box for <b>√</b>, <b>∛</b>, <b>i</b> and <b>±</b>, or type <code>sqrt</code> and <code>cbrt</code>.</li>
+    <li>Use the buttons under each answer box for <b>√</b>, <b>i</b> and <b>±</b>, or type <code>sqrt</code>.</li>
     <li>Type powers with <b>^</b> (x^2) and fractions with <b>/</b>. Put a whole fraction’s top in parentheses, like <code>(15+5√2)/7</code>.</li>
     <li>A radical covers the numbers and letters right after it, so <code>√2x</code> means \(\sqrt{2x}\). Use parentheses for anything more, like <code>√(x+3)</code>, and write <b>i</b> in front: <code>2i√5</code>.</li>
     <li>For equations, separate answers with commas (<code>8, -3</code>), use ± (<code>2±√5</code>), or type <code>no solution</code>.</li>
@@ -163,8 +163,8 @@
   <div class="notes">
     <strong>Key ideas</strong>
     <ul>
-      <li>Pull out perfect squares (for \(\sqrt{\ }\)) or perfect cubes (for \(\sqrt[3]{\ }\)): \(\sqrt{ab}=\sqrt a\,\sqrt b\).</li>
-      <li>For variables, divide the exponent by the index. The quotient comes out and the remainder stays in.</li>
+      <li>Pull out perfect-square factors: \(\sqrt{ab}=\sqrt a\,\sqrt b\).</li>
+      <li>For variables, divide the exponent by 2. The quotient comes out and the remainder stays in.</li>
       <li>\(\sqrt{-1} = i\), so \(\sqrt{-a} = i\sqrt a\) for \(a&gt;0\).</li>
     </ul>
     <em>Assume all variables are nonnegative.</em>
@@ -172,31 +172,24 @@
   <ol class="problems">
     <li><span class="num">1.</span> Simplify \(\sqrt{72}\).</li>
     <li><span class="num">2.</span> Simplify \(\sqrt{50x^3y^4}\).</li>
-    <li><span class="num">3.</span> Simplify \(\sqrt[3]{54}\).</li>
-    <li><span class="num">4.</span> Simplify \(\sqrt[3]{-16a^5b^6}\).</li>
-    <li><span class="num">5.</span> Simplify \(\sqrt{-49}\) and \(\sqrt{-20}\).</li>
+    <li><span class="num">3.</span> Simplify \(\sqrt{-49}\) and \(\sqrt{-20}\).</li>
   </ol>
 </section>
 
 <!-- ============ 2 ============ -->
 <section id="operations">
-  <h2>2 · Operations with Radicals</h2>
+  <h2>2 · Dividing Radicals &amp; Rationalizing</h2>
   <div class="notes">
     <strong>Key ideas</strong>
     <ul>
-      <li>Add or subtract only <em>like radicals</em> (same index and same radicand). Simplify first.</li>
-      <li>Multiply: \(\sqrt a\cdot\sqrt b=\sqrt{ab}\). Use FOIL for binomials.</li>
+      <li>Divide: \(\dfrac{\sqrt a}{\sqrt b}=\sqrt{\dfrac ab}\). Simplify the fraction under the radical first.</li>
       <li>Rationalize: no radicals in the denominator. For a binomial denominator, multiply by the <strong>conjugate</strong>.</li>
     </ul>
   </div>
   <ol class="problems">
-    <li><span class="num">6.</span> Simplify \(3\sqrt{12} + 5\sqrt{27} - \sqrt{48}\).</li>
-    <li><span class="num">7.</span> Simplify \(\sqrt6\cdot\sqrt{15}\).</li>
-    <li><span class="num">8.</span> Multiply \((2+\sqrt3)(4-\sqrt3)\).</li>
-    <li><span class="num">9.</span> Expand \((\sqrt5 - 2)^2\).</li>
-    <li><span class="num">10.</span> Rationalize \(\dfrac{6}{\sqrt3}\).</li>
-    <li><span class="num">11.</span> Rationalize \(\dfrac{5}{3-\sqrt2}\).</li>
-    <li><span class="num">12.</span> Simplify \(\dfrac{\sqrt{18x^5}}{\sqrt{2x}}\).</li>
+    <li><span class="num">4.</span> Rationalize \(\dfrac{6}{\sqrt3}\).</li>
+    <li><span class="num">5.</span> Rationalize \(\dfrac{5}{3-\sqrt2}\).</li>
+    <li><span class="num">6.</span> Simplify \(\dfrac{\sqrt{18x^5}}{\sqrt{2x}}\).</li>
   </ol>
 </section>
 
@@ -207,17 +200,16 @@
     <strong>Steps</strong>
     <ul>
       <li>Isolate the radical.</li>
-      <li>Raise both sides to the index power (square for \(\sqrt{\ }\), cube for \(\sqrt[3]{\ }\)).</li>
+      <li>Square both sides.</li>
       <li>Solve, then <strong>check every answer in the original equation</strong>. Squaring can create <em>extraneous</em> solutions.</li>
       <li>If an isolated square root equals a negative number, there is no solution.</li>
     </ul>
   </div>
   <ol class="problems">
-    <li><span class="num">13.</span> Solve \(\sqrt{x+5} = 4\).</li>
-    <li><span class="num">14.</span> Solve \(\sqrt{2x-3} + 2 = 7\).</li>
-    <li><span class="num">15.</span> Solve \(\sqrt{x+7} = x - 5\).</li>
-    <li><span class="num">16.</span> Solve \(\sqrt[3]{x-4} = -3\).</li>
-    <li><span class="num">17.</span> Solve \(\sqrt{x+3} + 5 = 2\).</li>
+    <li><span class="num">7.</span> Solve \(\sqrt{x+5} = 4\).</li>
+    <li><span class="num">8.</span> Solve \(\sqrt{2x-3} + 2 = 7\).</li>
+    <li><span class="num">9.</span> Solve \(\sqrt{x+7} = x - 5\).</li>
+    <li><span class="num">10.</span> Solve \(\sqrt{x+3} + 5 = 2\).</li>
   </ol>
 </section>
 
@@ -233,13 +225,13 @@
     </ul>
   </div>
   <ol class="problems">
-    <li><span class="num">18.</span> Solve by factoring: \(x^2 - 5x - 24 = 0\).</li>
-    <li><span class="num">19.</span> Solve by factoring: \(2x^2 + 7x + 3 = 0\).</li>
-    <li><span class="num">20.</span> Solve using square roots: \(3(x-2)^2 = 48\).</li>
-    <li><span class="num">21.</span> Solve: \(x^2 + 25 = 0\).</li>
-    <li><span class="num">22.</span> Solve by completing the square: \(x^2 + 6x - 7 = 0\).</li>
-    <li><span class="num">23.</span> Solve by completing the square: \(x^2 - 4x - 1 = 0\).</li>
-    <li><span class="num">24.</span> Write \(y = x^2 + 8x + 10\) in vertex form and name the vertex.</li>
+    <li><span class="num">11.</span> Solve by factoring: \(x^2 - 5x - 24 = 0\).</li>
+    <li><span class="num">12.</span> Solve by factoring: \(2x^2 + 7x + 3 = 0\).</li>
+    <li><span class="num">13.</span> Solve using square roots: \(3(x-2)^2 = 48\).</li>
+    <li><span class="num">14.</span> Solve: \(x^2 + 25 = 0\).</li>
+    <li><span class="num">15.</span> Solve by completing the square: \(x^2 + 6x - 7 = 0\).</li>
+    <li><span class="num">16.</span> Solve by completing the square: \(x^2 - 4x - 1 = 0\).</li>
+    <li><span class="num">17.</span> Write \(y = x^2 + 8x + 10\) in vertex form and name the vertex.</li>
   </ol>
 </section>
 
@@ -248,13 +240,12 @@
   <h2>5 · Complex Numbers</h2>
   <div class="notes">
     <strong>Key ideas:</strong> \(i = \sqrt{-1}\), \(i^2 = -1\), \(i^3 = -i\), \(i^4 = 1\). The powers repeat every 4.
-    Always rewrite \(\sqrt{-a}\) as \(i\sqrt a\) <em>before</em> multiplying.
+    Remember \(i^2=-1\) when you multiply.
   </div>
   <ol class="problems">
-    <li><span class="num">25.</span> Simplify \((3 + 2i) + (5 - 7i)\).</li>
-    <li><span class="num">26.</span> Multiply \((2 - 3i)(4 + i)\).</li>
-    <li><span class="num">27.</span> Simplify \(i^{23}\).</li>
-    <li><span class="num">28.</span> Simplify \(\sqrt{-8}\cdot\sqrt{-2}\).</li>
+    <li><span class="num">18.</span> Simplify \((3 + 2i) + (5 - 7i)\).</li>
+    <li><span class="num">19.</span> Multiply \((2 - 3i)(4 + i)\).</li>
+    <li><span class="num">20.</span> Simplify \(i^{23}\).</li>
   </ol>
 </section>
 
@@ -262,9 +253,9 @@
 <section id="apply">
   <h2>6 · Applications</h2>
   <ol class="problems">
-    <li><span class="num">29.</span> A ball is thrown from a 48-ft platform. Its height is \(h = -16t^2 + 32t + 48\), where \(t\) is in seconds.
+    <li><span class="num">21.</span> A ball is thrown from a 48-ft platform. Its height is \(h = -16t^2 + 32t + 48\), where \(t\) is in seconds.
       (a) When does it hit the ground? (b) What is its maximum height?</li>
-    <li><span class="num">30.</span> The distance \(d\) (miles) you can see to the horizon from a height of \(h\) feet is \(d = \sqrt{1.5h}\).
+    <li><span class="num">22.</span> The distance \(d\) (miles) you can see to the horizon from a height of \(h\) feet is \(d = \sqrt{1.5h}\).
       How high must you be to see 6 miles?</li>
   </ol>
 </section>

@@ -8,41 +8,33 @@
   const KEY = {
     1: { type: 'expr', ans: '6√2' },
     2: { type: 'expr', ans: '5xy^2√(2x)' },
-    3: { type: 'expr', ans: '3∛2' },
-    4: { type: 'expr', ans: '-2ab^2∛(2a^2)' },
-    5: { parts: [
+    3: { parts: [
       { label: '√−49 =', type: 'expr', ans: '7i' },
       { label: '√−20 =', type: 'expr', ans: '2i√5' } ] },
-    6: { type: 'expr', ans: '17√3' },
-    7: { type: 'expr', ans: '3√10' },
-    8: { type: 'expr', ans: '5+2√3' },
-    9: { type: 'expr', ans: '9-4√5' },
-    10: { type: 'expr', ans: '2√3' },
-    11: { type: 'expr', ans: '(15+5√2)/7' },
-    12: { type: 'expr', ans: '3x^2' },
-    13: { type: 'solve', ans: ['11'] },
-    14: { type: 'solve', ans: ['14'] },
-    15: { type: 'solve', ans: ['9'], extraneous: ['2'] },
-    16: { type: 'solve', ans: ['-23'] },
-    17: { type: 'solve', ans: [], extraneous: ['6'] },
-    18: { type: 'solve', ans: ['8', '-3'] },
-    19: { type: 'solve', ans: ['-1/2', '-3'] },
-    20: { type: 'solve', ans: ['6', '-2'] },
-    21: { type: 'solve', ans: ['5i', '-5i'] },
-    22: { type: 'solve', ans: ['1', '-7'] },
-    23: { type: 'solve', ans: ['2+√5', '2-√5'] },
-    24: { parts: [
+    4: { type: 'expr', ans: '2√3' },
+    5: { type: 'expr', ans: '(15+5√2)/7' },
+    6: { type: 'expr', ans: '3x^2' },
+    7: { type: 'solve', ans: ['11'] },
+    8: { type: 'solve', ans: ['14'] },
+    9: { type: 'solve', ans: ['9'], extraneous: ['2'] },
+    10: { type: 'solve', ans: [], extraneous: ['6'] },
+    11: { type: 'solve', ans: ['8', '-3'] },
+    12: { type: 'solve', ans: ['-1/2', '-3'] },
+    13: { type: 'solve', ans: ['6', '-2'] },
+    14: { type: 'solve', ans: ['5i', '-5i'] },
+    15: { type: 'solve', ans: ['1', '-7'] },
+    16: { type: 'solve', ans: ['2+√5', '2-√5'] },
+    17: { parts: [
       { label: 'y =', type: 'expr', ans: '(x+4)^2-6', vertexForm: true },
       { label: 'Vertex:', type: 'point', ans: ['-4', '-6'] } ] },
-    25: { type: 'expr', ans: '8-5i' },
-    26: { type: 'expr', ans: '11-10i' },
-    27: { type: 'expr', ans: '-i' },
-    28: { type: 'expr', ans: '-4' },
-    29: { parts: [
+    18: { type: 'expr', ans: '8-5i' },
+    19: { type: 'expr', ans: '11-10i' },
+    20: { type: 'expr', ans: '-i' },
+    21: { parts: [
       { label: '(a) t =', type: 'solve', ans: ['3'], extraneous: ['-1'], units: true, suffix: 'seconds',
         extraneousMsg: 'Time can’t be negative. Keep only the answer that makes sense.' },
       { label: '(b) Max height =', type: 'expr', ans: '64', units: true, suffix: 'ft' } ] },
-    30: { type: 'expr', ans: '24', label: 'h =', units: true, suffix: 'ft' },
+    22: { type: 'expr', ans: '24', label: 'h =', units: true, suffix: 'ft' },
   };
 
   /* ================= Parsing ================= */
@@ -73,7 +65,7 @@
       if (c === 'i') { t.push({ k: 'i' }); i++; continue; }
       if (VARS.has(c)) { t.push({ k: 'var', v: c }); i++; continue; }
       if ('+-*/^()±√∛'.includes(c)) { t.push({ k: c }); i++; continue; }
-      fail(`I don’t understand “${c}”. Use the buttons for √, ∛, i and ±.`);
+      fail(`I don’t understand “${c}”. Use the buttons for √, i and ±.`);
     }
     return t;
   }
@@ -293,7 +285,7 @@
   }
   const ISSUE_MSG = {
     'neg-rad': 'There’s a negative under a square root. Rewrite it using i.',
-    'rad-factor': 'Pull out every perfect-square (or perfect-cube) factor from under the radical.',
+    'rad-factor': 'Pull out every perfect-square factor from under the radical.',
     'rad-frac': 'Don’t leave a fraction under a radical.',
     'rad-denom': 'Rationalize the denominator so there are no radicals (or i) in the denominator.',
     'reduce': 'Reduce the fraction.',
@@ -431,7 +423,7 @@
 
   /* ================= Page UI ================= */
   if (typeof document === 'undefined') return;
-  const KEYS = ['√', '∛', 'i', '^', '±', '(', ')', ','];
+  const KEYS = ['√', 'i', '^', '±', '(', ')', ','];
   const solved = new Set();
   const total = Object.keys(KEY).length;
 
