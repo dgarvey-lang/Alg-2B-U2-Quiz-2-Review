@@ -1,15 +1,15 @@
 # Algebra 2B · Unit 2 Quiz 2 Review: Radicals & Quadratics
 
-An interactive review page (`index.html`) with 22 practice problems, a **Check work** button on every problem, and a built-in scratch pad.
+An interactive review page (`index.html`) with 21 practice problems, a **Check work** button on every problem, and a built-in scratch pad.
 
 | Section | Topics | Problems |
 |---|---|---|
 | 1 | Simplifying square roots (numbers, variables, √ of negatives) | 1–3 |
-| 2 | Dividing radicals and rationalizing denominators | 4–6 |
-| 3 | Solving radical equations and extraneous solutions | 7–10 |
-| 4 | Solving quadratics: factoring, square roots, completing the square, vertex form | 11–17 |
-| 5 | Complex numbers | 18–20 |
-| 6 | Applications | 21–22 |
+| 2 | Dividing radicals and rationalizing denominators | 4–5 |
+| 3 | Solving radical equations and extraneous solutions | 6–9 |
+| 4 | Solving quadratics: factoring, square roots, completing the square, vertex form | 10–16 |
+| 5 | Complex numbers | 17–19 |
+| 6 | Applications | 20–21 |
 
 ## Using it
 - **Scratch pad:** a grid-paper drawing area on the right side of the screen. Students can work problems with a finger, stylus, or mouse, using black/blue/red pens, an eraser, Undo, and Clear. It stays open beside the problems on laptops and Chromebooks. On phones, tap **✏️ Scratch pad** in the bottom-right corner to slide it in, and tap **Hide** to close it.
