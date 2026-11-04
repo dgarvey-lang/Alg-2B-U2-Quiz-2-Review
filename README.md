@@ -8,7 +8,8 @@ An interactive review page (`index.html`) with 15 practice problems, a **Check w
 | 2 | Dividing radicals and rationalizing denominators | 4–5 |
 | 3 | Solving quadratics by square rooting (including imaginary solutions) | 6–9 |
 | 4 | Solving quadratics by factoring and by square roots | 10–13 |
-| 5 | Applications | 14–15 |
+| 5 | Application (projectile height) | 14 |
+| 6 | Characteristics of a parabola from its graph (vertex, axis of symmetry, intercepts, increasing/decreasing, domain, range, and vertex/intercept/standard form) | 15 |
 | — | Survey: “What do you need more help on?” | end of page |
 
 ## Using it

@@ -122,6 +122,13 @@
   .feedback.wrong { color: var(--bad); }
   .feedback.almost, .feedback.error { color: var(--warn); }
   ol.problems > li.solved { border-color: var(--good); box-shadow: inset 4px 0 0 var(--good); }
+  .graphbox { margin: 10px 0 4px; }
+  svg.graph { display: block; width: 100%; max-width: 340px; height: auto; color: var(--text); }
+  svg.graph .grid { stroke: var(--border); stroke-width: 1; fill: none; }
+  svg.graph .axis { stroke: currentColor; stroke-width: 1.6; }
+  svg.graph .curve { stroke: var(--accent); stroke-width: 2.6; fill: none; }
+  svg.graph text { fill: var(--muted); font-size: 11px; font-family: system-ui, sans-serif; paint-order: stroke; stroke: var(--card); stroke-width: 3px; }
+  @media print { svg.graph .grid { stroke: #bbb; } svg.graph .curve { stroke: #000; } }
   @media print { .work, .howto, .score { display: none !important; } }
   /* ---------- Survey ---------- */
   .survey { background: var(--card); border: 2px solid var(--accent); border-radius: 14px; padding: 8px 20px 20px; margin-top: 48px; }
@@ -158,6 +165,7 @@
   <a href="#radeq">3 · Square Rooting</a>
   <a href="#quad">4 · Solving Quadratics</a>
   <a href="#apply">5 · Applications</a>
+  <a href="#graph">6 · Parabola Characteristics</a>
   <a href="#survey">Survey</a>
 </nav>
 
@@ -172,6 +180,7 @@
     <li>Use the buttons under each answer box for <b>√</b>, <b>i</b> and <b>±</b>, or type <code>sqrt</code>.</li>
     <li>Type powers with <b>^</b> (x^2) and fractions with <b>/</b>. Put a whole fraction’s top in parentheses, like <code>(15+5√2)/7</code>.</li>
     <li>A radical covers the numbers and letters right after it, so <code>√2x</code> means \(\sqrt{2x}\). Use parentheses for anything more, like <code>√(x+3)</code>, and write <b>i</b> in front: <code>2i√5</code>.</li>
+    <li>For inequalities, type <code>&lt;=</code> or <code>&gt;=</code> (or use the ≤ ≥ buttons), and use the ∞ button for interval notation: <code>(-∞, 3]</code>.</li>
     <li>For equations, separate answers with commas (<code>8, -3</code>), use ± (<code>2±√5</code>), or type <code>no solution</code>.</li>
     <li>Answers must be exact and fully simplified. Check the “You entered” line to make sure it reads the way you meant.</li>
   </ul>
@@ -256,8 +265,45 @@
   <ol class="problems">
     <li><span class="num">14.</span> A ball is thrown from a 48-ft platform. Its height is \(h = -16t^2 + 32t + 48\), where \(t\) is in seconds.
       (a) When does it hit the ground? (b) What is its maximum height?</li>
-    <li><span class="num">15.</span> The distance \(d\) (miles) you can see to the horizon from a height of \(h\) feet is \(d = \sqrt{1.5h}\).
-      How high must you be to see 6 miles?</li>
+  </ol>
+</section>
+
+<!-- ============ 6 ============ -->
+<section id="graph">
+  <h2>6 · Characteristics of a Parabola</h2>
+  <div class="notes">
+    <strong>Forms of a quadratic</strong>
+    <ul>
+      <li><strong>Vertex form:</strong> \(y = a(x-h)^2 + k\), with vertex \((h, k)\).</li>
+      <li><strong>Intercept form:</strong> \(y = a(x-p)(x-q)\), with x-intercepts \(p\) and \(q\).</li>
+      <li><strong>Standard form:</strong> \(y = ax^2 + bx + c\), with y-intercept \(c\).</li>
+      <li>Write increasing/decreasing, domain, and range as inequalities (\(x &lt; 3\)) or in interval notation (\((-\infty, 3)\)).</li>
+    </ul>
+  </div>
+  <ol class="problems">
+    <li><span class="num">15.</span> Identify each characteristic of the parabola below, then write its equation in all three forms. Each grid square is 1 unit.
+      <div class="graphbox">
+<svg class="graph" viewBox="0 0 308 288" role="img" aria-label="Graph of a downward-opening parabola on a coordinate grid, each square is 1 unit">
+<defs><marker id="ar" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="10" markerHeight="10" markerUnits="userSpaceOnUse" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="currentColor"/></marker></defs>
+<path class="grid" d="M14,274V14M34,274V14M54,274V14M74,274V14M94,274V14M114,274V14M134,274V14M154,274V14M174,274V14M194,274V14M214,274V14M234,274V14M254,274V14M274,274V14M294,274V14M14,274H294M14,254H294M14,234H294M14,214H294M14,194H294M14,174H294M14,154H294M14,134H294M14,114H294M14,94H294M14,74H294M14,54H294M14,34H294M14,14H294"/>
+<line class="axis" x1="6" y1="214" x2="302" y2="214" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<line class="axis" x1="154" y1="282" x2="154" y2="6" marker-start="url(#ar)" marker-end="url(#ar)"/>
+<text x="34" y="228" text-anchor="middle">-6</text>
+<text x="74" y="228" text-anchor="middle">-4</text>
+<text x="114" y="228" text-anchor="middle">-2</text>
+<text x="194" y="228" text-anchor="middle">2</text>
+<text x="234" y="228" text-anchor="middle">4</text>
+<text x="274" y="228" text-anchor="middle">6</text>
+<text x="149" y="258" text-anchor="end">-2</text>
+<text x="149" y="178" text-anchor="end">2</text>
+<text x="149" y="138" text-anchor="end">4</text>
+<text x="149" y="98" text-anchor="end">6</text>
+<text x="149" y="58" text-anchor="end">8</text>
+<text x="149" y="18" text-anchor="end">10</text>
+<path class="curve" style="color: var(--accent)" d="M64.7,274.0 L66.5,262.1 L68.2,250.6 L69.9,239.3 L71.6,228.4 L73.4,217.7 L75.1,207.4 L76.8,197.3 L78.6,187.6 L80.3,178.1 L82.0,169.0 L83.8,160.1 L85.5,151.6 L87.2,143.3 L89.0,135.4 L90.7,127.7 L92.4,120.4 L94.2,113.3 L95.9,106.6 L97.6,100.1 L99.4,94.0 L101.1,88.1 L102.8,82.6 L104.6,77.4 L106.3,72.4 L108.0,67.8 L109.8,63.4 L111.5,59.4 L113.2,55.6 L114.9,52.2 L116.7,49.0 L118.4,46.1 L120.1,43.6 L121.9,41.3 L123.6,39.4 L125.3,37.8 L127.1,36.4 L128.8,35.4 L130.5,34.6 L132.3,34.2 L134.0,34.0 L135.7,34.2 L137.5,34.6 L139.2,35.4 L140.9,36.4 L142.7,37.8 L144.4,39.4 L146.1,41.3 L147.9,43.6 L149.6,46.1 L151.3,49.0 L153.1,52.1 L154.8,55.6 L156.5,59.4 L158.2,63.4 L160.0,67.8 L161.7,72.4 L163.4,77.4 L165.2,82.6 L166.9,88.1 L168.6,94.0 L170.4,100.1 L172.1,106.6 L173.8,113.3 L175.6,120.4 L177.3,127.7 L179.0,135.4 L180.8,143.3 L182.5,151.6 L184.2,160.1 L186.0,169.0 L187.7,178.2 L189.4,187.6 L191.2,197.3 L192.9,207.4 L194.6,217.8 L196.4,228.4 L198.1,239.3 L199.8,250.6 L201.5,262.2 L203.3,274.0" marker-start="url(#ar)" marker-end="url(#ar)"/>
+</svg>
+      </div>
+    </li>
   </ol>
 </section>
 
@@ -387,7 +433,7 @@
     document.getElementById('clear').onclick = () => { strokes.length = 0; redraw(); };
   })();
 </script>
-<script src="checker.js?v=2026-11-04b"></script>
+<script src="checker.js?v=2026-11-04c"></script>
 <script src="survey.js?v=2026-11-04c"></script>
 </body>
 </html>

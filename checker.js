@@ -25,7 +25,18 @@
       { label: '(a) t =', type: 'solve', ans: ['3'], extraneous: ['-1'], units: true, suffix: 'seconds',
         extraneousMsg: 'Time can’t be negative. Keep only the answer that makes sense.' },
       { label: '(b) Max height =', type: 'expr', ans: '64', units: true, suffix: 'ft' } ] },
-    15: { type: 'expr', ans: '24', label: 'h =', units: true, suffix: 'ft' },
+    15: { parts: [
+      { label: 'Vertex:', type: 'point', ans: ['-1', '9'] },
+      { label: 'Axis of symmetry:', type: 'expr', ans: '-1', placeholder: 'x = …' },
+      { label: 'x-intercept(s):', type: 'solve', ans: ['-4', '2'], xint: true },
+      { label: 'y-intercept:', type: 'expr', ans: '8', point: ['0', '8'] },
+      { label: 'Increasing:', type: 'interval', v: 'x', lo: -Infinity, hi: -1, eitherEnd: true },
+      { label: 'Decreasing:', type: 'interval', v: 'x', lo: -1, hi: Infinity, eitherEnd: true },
+      { label: 'Domain:', type: 'interval', v: 'x', lo: -Infinity, hi: Infinity },
+      { label: 'Range:', type: 'interval', v: 'y', lo: -Infinity, hi: 9, hiClosed: true },
+      { label: 'Vertex form: y =', type: 'expr', ans: '-(x+1)^2+9', form: 'vertex' },
+      { label: 'Intercept form: y =', type: 'expr', ans: '-(x+4)(x-2)', form: 'intercept' },
+      { label: 'Standard form: y =', type: 'expr', ans: '-x^2-2x+8', form: 'standard' } ] },
   };
 
   /* ================= Parsing ================= */
@@ -269,7 +280,7 @@
         grab(Object.assign({}, n, { paren: false }));
         if (terms.filter(isPlain).length > 1) flag('combine');
       }
-      if (n.type === 'mul' && isSum(n.a) && isSum(n.b)) flag('expand');
+      if (n.type === 'mul' && isSum(n.a) && isSum(n.b) && !opts.factored) flag('expand');
     });
     if (!issue && opts.maxSpecial != null && countSpecial(tree) > opts.maxSpecial) flag('combine');
     return issue;
@@ -309,22 +320,99 @@
   }
 
   function checkExpr(raw, spec) {
+    if (spec.point && /^\(.*,.*\)$/.test(normalize(raw))) return checkPoint(raw, { ans: spec.point });
     const text = stripLhs(cleanText(raw, spec));
     const tree = parse(text);
     const vals = splitValues(tree);
     if (vals.length > 1) return R('error', 'Enter just one answer here (no ±).');
     const expTree = parse(normalize(spec.ans)), exp = splitValues(expTree)[0];
     if (!sameAt(vals[0], exp)) return approxHint(vals, [exp], text) || R('wrong', MSG_WRONG);
-    if (spec.vertexForm) {
-      let xs = 0; walk(tree, m => { if (m.type === 'var' && m.name === 'x') xs++; });
-      if (xs !== 1) return R('almost', 'That’s equal, but it isn’t in vertex form: y = a(x − h)² + k.');
-    }
-    const issue = simplifyIssue(tree, { vertexForm: spec.vertexForm, maxSpecial: countSpecial(expTree) });
+    const form = spec.vertexForm ? 'vertex' : spec.form;
+    const formIssue = form && formProblem(tree, form);
+    if (formIssue) return R('almost', 'That’s equal, but ' + formIssue);
+    const issue = form === 'standard' ? null
+      : simplifyIssue(tree, { vertexForm: form === 'vertex', factored: form === 'intercept', maxSpecial: countSpecial(expTree) });
     return issue ? almost(issue) : R('right', MSG_RIGHT);
   }
 
+  // Is an equation (already known to be equal to the key) written in the asked-for form?
+  function formProblem(tree, form) {
+    let xs = 0; walk(tree, m => { if (m.type === 'var' && m.name === 'x') xs++; });
+    const hasX = m => has(m, k => k.type === 'var' && k.name === 'x');
+    const grouped = has(tree, m => hasX(m) && (
+      (m.type === 'pow' && isSum(m.a)) || (m.type === 'mul' && (isSum(m.a) || isSum(m.b))) ||
+      ((m.type === 'neg' || m.type === 'div') && isSum(m.a) && m.a.paren)));
+    if (form === 'vertex' && xs !== 1) return 'it isn’t in vertex form: y = a(x − h)² + k.';
+    if (form === 'intercept') {
+      let top = tree; while (top.type === 'neg') top = top.a;
+      if (xs !== 2 || isSum(top) && !top.paren || has(tree, m => m.type === 'pow'))
+        return 'it isn’t in intercept form: y = a(x − p)(x − q).';
+    }
+    if (form === 'standard') {
+      if (grouped) return 'it isn’t in standard form. Multiply it out to get y = ax² + bx + c.';
+      const terms = [], grab = m => { if (isSum(m)) { grab(m.a); grab(m.b); } else terms.push(m); };
+      grab(tree);
+      const degs = terms.map(t => { const m = monomial(t.type === 'neg' ? t.a : t); return m ? (m.vars.x || 0) : -1; });
+      if (degs.some(d => d < 0) || new Set(degs).size !== degs.length) return 'combine like terms to get y = ax² + bx + c.';
+    }
+    return null;
+  }
+
+  /* Inequalities and interval notation, e.g. x < -1, -1 ≤ x, (-∞, -1), all real numbers */
+  const INF = /^(\+?∞)$/, NINF = /^-∞$/;
+  function intervalText(raw) {
+    return String(raw).toLowerCase()
+      .replace(/[−–—]/g, '-').replace(/<=|=</g, '≤').replace(/>=|=>/g, '≥')
+      .replace(/infinity|inf|oo/g, '∞').replace(/[{}]/g, '').replace(/\s+/g, '');
+  }
+  function endpoint(str) {
+    if (INF.test(str)) return Infinity;
+    if (NINF.test(str)) return -Infinity;
+    const v = splitValues(parse(normalize(str)));
+    if (v.length !== 1 || Math.abs(v[0][0].im) > 1e-9) fail(`I can’t read “${str}” as a number.`);
+    return v[0][0].re;
+  }
+  function readInterval(raw) {
+    const t = intervalText(raw);
+    if (/^(allreal(numbers?|s)?|reals?|ℝ|r|allrealnumbers)$/.test(t) || /^(-∞<[xy]<∞|-∞<[xy]<\+?∞)$/.test(t))
+      return { lo: -Infinity, hi: Infinity, loC: false, hiC: false, v: null };
+    let m = t.match(/^([([])([^,]+),([^,]+)([)\]])$/);
+    if (m) return { lo: endpoint(m[2]), hi: endpoint(m[3]), loC: m[1] === '[', hiC: m[4] === ']', v: null, notation: true };
+    const bits = t.split(/(≤|≥|<|>)/);
+    const isV = b => /^[xy]$/.test(b);
+    if (bits.length === 3 && (isV(bits[0]) || isV(bits[2]))) {
+      let [a, op, b] = bits;
+      if (isV(b)) { [a, b] = [b, a]; op = { '<': '>', '>': '<', '≤': '≥', '≥': '≤' }[op]; } // 3 > x  ->  x < 3
+      const e = endpoint(b), closed = op === '≤' || op === '≥';
+      return op === '<' || op === '≤'
+        ? { lo: -Infinity, hi: e, loC: false, hiC: closed, v: a }
+        : { lo: e, hi: Infinity, loC: closed, hiC: false, v: a };
+    }
+    if (bits.length === 5 && isV(bits[2])) {
+      const ops = bits[1] + bits[3];
+      if (!/^[<≤]{2}$/.test(ops)) fail('Write a double inequality from smallest to largest, like −2 < x ≤ 5.');
+      return { lo: endpoint(bits[0]), hi: endpoint(bits[4]), loC: bits[1] === '≤', hiC: bits[3] === '≤', v: bits[2] };
+    }
+    fail('Write it as an inequality (x < 3), in interval notation ((−∞, 3)), or as “all real numbers”.');
+  }
+  function checkInterval(raw, spec) {
+    const r = readInterval(raw);
+    const same = (a, b) => a === b || (isFinite(a) && isFinite(b) && Math.abs(a - b) < 1e-9);
+    if (!same(r.lo, spec.lo) || !same(r.hi, spec.hi)) return R('wrong', MSG_WRONG);
+    if (r.notation && ((r.loC && !isFinite(r.lo)) || (r.hiC && !isFinite(r.hi))))
+      return R('almost', 'The numbers are right, but always use a parenthesis next to ∞, never a bracket.');
+    if (!spec.eitherEnd) {
+      const loOk = !isFinite(r.lo) || r.loC === !!spec.loClosed, hiOk = !isFinite(r.hi) || r.hiC === !!spec.hiClosed;
+      if (!loOk || !hiOk) return R('almost', 'The numbers are right, but check whether the endpoint is included (≤ vs. <, or [ vs. ( ).');
+    }
+    if (r.v && r.v !== spec.v)
+      return R('almost', spec.v === 'y' ? 'Right numbers, but range describes the y-values, so write it with y.' : 'Right numbers, but this describes the x-values, so write it with x.');
+    return R('right', MSG_RIGHT);
+  }
+
   function checkSolve(raw, spec) {
-    const text = cleanText(raw, spec);
+    let text = cleanText(raw, spec);
+    if (spec.xint) text = text.replace(/\(([^(),]+),0\)/g, '$1'); // accept points like (-4, 0)
     const none = /^(nosolutions?|norealsolutions?|none|∅|\(\))$/i.test(text);
     const exp = spec.ans.map(a => splitValues(parse(normalize(a)))[0]);
     const extr = (spec.extraneous || []).map(a => splitValues(parse(normalize(a)))[0]);
@@ -366,6 +454,7 @@
       if (!String(raw).trim()) return R('error', 'Type an answer first.');
       if (spec.type === 'solve') return checkSolve(raw, spec);
       if (spec.type === 'point') return checkPoint(raw, spec);
+      if (spec.type === 'interval') return checkInterval(raw, spec);
       return checkExpr(raw, spec);
     } catch (e) {
       if (e instanceof InputError) return R('error', e.message);
@@ -394,9 +483,21 @@
   }
   function previewTex(raw, spec) {
     try {
+      if (spec.type === 'interval') {
+        const t = intervalText(raw);
+        if (!t) return '';
+        if (/^(allreal|reals?$|ℝ$|r$)/.test(t)) return '\\text{all real numbers}';
+        return t.replace(/∞/g, '\\infty ').replace(/≤/g, '\\le ').replace(/≥/g, '\\ge ')
+          .replace(/</g, '\\lt ').replace(/>/g, '\\gt ').replace(/,/g, ',\\ ').replace(/√/g, '\\sqrt ');
+      }
+      if (spec.point && /^\(.*,.*\)$/.test(normalize(raw))) {
+        const parts = normalize(raw).replace(/^\((.*)\)$/, '$1').split(',');
+        return parts.length === 2 ? '\\left(' + parts.map(p => tex(parse(p))).join(',\\ ') + '\\right)' : '';
+      }
       const text = cleanText(raw, spec);
       if (!text) return '';
       if (spec.type === 'solve') {
+        const text = spec.xint ? cleanText(raw, spec).replace(/\(([^(),]+),0\)/g, '$1') : cleanText(raw, spec);
         if (/^(nosolutions?|norealsolutions?|none|∅)$/i.test(text)) return '\\text{no solution}';
         return text.split(/,|;|or|and/i).map(stripLhs).filter(Boolean).map(t => tex(parse(t))).join(',\\ ');
       }
@@ -452,7 +553,8 @@
       const input = document.createElement('input');
       Object.assign(input, { id, type: 'text', autocomplete: 'off', spellcheck: false });
       input.setAttribute('autocapitalize', 'off'); input.setAttribute('autocorrect', 'off');
-      input.placeholder = part.type === 'solve' ? 'e.g. 3, −5   or   no solution' : part.type === 'point' ? '(x, y)' : 'Your answer';
+      input.placeholder = part.placeholder || (part.type === 'solve' ? (part.xint ? 'e.g. 3, −5' : 'e.g. 3, −5   or   no solution')
+        : part.type === 'point' ? '(x, y)' : part.type === 'interval' ? 'e.g. x < 3   or   (−∞, 3)' : 'Your answer');
       row.appendChild(input);
       if (part.suffix) { const u = document.createElement('span'); u.className = 'suffix'; u.textContent = part.suffix; row.appendChild(u); }
       const preview = document.createElement('div'); preview.className = 'preview'; preview.setAttribute('aria-hidden', 'true');
@@ -475,7 +577,8 @@
     });
 
     const pad = document.createElement('div'); pad.className = 'keypad';
-    const keys = KEYS.concat(parts.some(p => p.type === 'solve') ? ['no solution'] : []);
+    const keys = KEYS.concat(parts.some(p => p.type === 'interval') ? ['≤', '≥', '<', '>', '∞', '[', ']'] : [],
+      parts.some(p => p.type === 'solve' && !p.xint) ? ['no solution'] : []);
     keys.forEach(k => {
       const b = document.createElement('button'); b.type = 'button'; b.textContent = k; b.tabIndex = -1;
       b.addEventListener('pointerdown', e => e.preventDefault()); // keep focus/keyboard on the input
