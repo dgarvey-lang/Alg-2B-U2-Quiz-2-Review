@@ -21,19 +21,11 @@
     11: { type: 'solve', ans: ['-1/2', '-3'] },
     12: { type: 'solve', ans: ['6', '-2'] },
     13: { type: 'solve', ans: ['5i', '-5i'] },
-    14: { type: 'solve', ans: ['1', '-7'] },
-    15: { type: 'solve', ans: ['2+√5', '2-√5'] },
-    16: { parts: [
-      { label: 'y =', type: 'expr', ans: '(x+4)^2-6', vertexForm: true },
-      { label: 'Vertex:', type: 'point', ans: ['-4', '-6'] } ] },
-    17: { type: 'expr', ans: '8-5i' },
-    18: { type: 'expr', ans: '11-10i' },
-    19: { type: 'expr', ans: '-i' },
-    20: { parts: [
+    14: { parts: [
       { label: '(a) t =', type: 'solve', ans: ['3'], extraneous: ['-1'], units: true, suffix: 'seconds',
         extraneousMsg: 'Time can’t be negative. Keep only the answer that makes sense.' },
       { label: '(b) Max height =', type: 'expr', ans: '64', units: true, suffix: 'ft' } ] },
-    21: { type: 'expr', ans: '24', label: 'h =', units: true, suffix: 'ft' },
+    15: { type: 'expr', ans: '24', label: 'h =', units: true, suffix: 'ft' },
   };
 
   /* ================= Parsing ================= */
@@ -425,6 +417,7 @@
   const KEYS = ['√', 'i', '^', '±', '(', ')', ','];
   const solved = new Set();
   const total = Object.keys(KEY).length;
+  api.progress = () => ({ solved: [...solved].sort((a, b) => a - b), total });
 
   function insertAt(input, text) {
     const s = input.selectionStart ?? input.value.length, e = input.selectionEnd ?? s;
