@@ -37,7 +37,7 @@ At the end of the review, students check the topics they want more help with and
 
 They can also choose “I feel ready on all of these” and leave a comment.
 
-Each submission becomes one row in a Google Sheet that only you can see. Each row has the student's name, class period, a ✔ under each topic they chose, their comment, and their review score (for example `9 / 15`, plus which problems they got correct).
+Each submission becomes one row in a Google Sheet that only you can see. Each row has the student's name, class period, a ✔ under each topic they chose, their comment, their review score (for example `9 / 15`, plus which problems they got correct), and their school email.
 
 ### One-time setup (about 5 minutes)
 1. Create a new Google Sheet (for example “Alg 2B U2 Quiz 2 Survey”).
@@ -45,7 +45,7 @@ Each submission becomes one row in a Google Sheet that only you can see. Each ro
 3. Delete what's in the editor, paste in everything from [`teacher/survey-apps-script.gs`](teacher/survey-apps-script.gs), and click **Save**.
 4. Click **Deploy → New deployment**. Click the gear next to “Select type” and choose **Web app**. Then set:
    - **Execute as:** Me
-   - **Who has access:** Anyone (so students don't need to sign in)
+   - **Who has access:** Anyone within Pinkerton Academy (students must be signed in with their school Google account; their school email is recorded with each response)
 5. Click **Deploy**, approve the permissions Google asks for, and copy the **Web app URL** (it ends in `/exec`).
 6. Put that URL in `survey.js` between the quotes on the line `const SURVEY_URL = '';`. You can edit the file on GitHub with the pencil icon, or send the URL to Claude to add.
 
@@ -55,4 +55,5 @@ Until step 6 is done, students who press Submit see “This survey isn't connect
 
 **Notes**
 - If you later change the Apps Script, use **Deploy → Manage deployments → Edit → New version** so the URL stays the same.
-- Anyone who has the page link could send a response, so treat names as self-reported.
+- When a student presses **Submit**, a new tab opens to send the answers and shows “Thanks!” If they aren't signed in to their school Google account, Google asks them to sign in first.
+- The **School email** column shows who actually submitted, even if a student types a different name.

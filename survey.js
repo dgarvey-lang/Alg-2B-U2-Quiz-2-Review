@@ -3,7 +3,7 @@
  * Google Apps Script web app (see teacher/survey-apps-script.gs and the README). */
 
 // ===== TEACHER SETUP: paste your Apps Script web app URL between the quotes =====
-const SURVEY_URL = 'https://script.google.com/macros/s/AKfycbwDbUPt3YWOmChtvMEBfI6yk_BmEamnUVPvw4DuYWD-g7sJOheY8fabvGNEFr3s5B-b/exec';
+const SURVEY_URL = 'https://script.google.com/a/macros/pinkertonacademy.org/s/AKfycby7ZE3ia2O88QBMMh1VP342UkRJ0qTe3mU8a1cVgX-fHYeLqBbHhPftbzfH1VD0VX00/exec';
 // ===============================================================================
 
 (function () {
@@ -27,7 +27,7 @@ const SURVEY_URL = 'https://script.google.com/macros/s/AKfycbwDbUPt3YWOmChtvMEBf
     period.value = localStorage.getItem('survey.period') || '';
   } catch (e) { /* storage blocked: fine */ }
 
-  form.addEventListener('submit', async e => {
+  form.addEventListener('submit', e => {
     e.preventDefault();
     const picked = topics.filter(t => t.checked).map(t => t.value);
     if (!name.value.trim()) { say('⚠ Please type your name.', 'error'); name.focus(); return; }
@@ -46,17 +46,18 @@ const SURVEY_URL = 'https://script.google.com/macros/s/AKfycbwDbUPt3YWOmChtvMEBf
     });
     try { localStorage.setItem('survey.name', name.value.trim()); localStorage.setItem('survey.period', period.value.trim()); } catch (err) { /* ignore */ }
 
-    btn.disabled = true; say('Sending…', '');
-    try {
-      // Apps Script doesn't send CORS headers, so the reply can't be read. A
-      // network failure still throws, which is what we need to report.
-      await fetch(SURVEY_URL, { method: 'POST', mode: 'no-cors', body: data });
-      say(`✓ Thanks, ${name.value.trim().split(/\s+/)[0]}! Your teacher will see your answers.`, 'right');
+    // The school-only web app needs the student's Google sign-in, which a
+    // background request from this page can't carry. Opening it in a new tab
+    // does; the tab records the answers and shows a thank-you message.
+    const url = SURVEY_URL + (SURVEY_URL.includes('?') ? '&' : '?') + data.toString();
+    const tab = window.open(url, '_blank');
+    if (tab) {
+      say('✓ A new tab opened to send your answers. If it asks, sign in with your school Google account. When it says “Thanks,” you’re done.', 'right');
       btn.textContent = 'Submit again';
-    } catch (err) {
-      say('✗ Couldn’t send. Check your internet connection and try again.', 'wrong');
-    } finally {
-      btn.disabled = false;
+    } else {
+      msg.className = 'feedback error';
+      msg.innerHTML = '⚠ Your browser blocked the new tab. <a target="_blank" rel="noopener">Tap here to send your answers</a>.';
+      msg.querySelector('a').href = url;
     }
   });
 })();
