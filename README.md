@@ -56,3 +56,4 @@ Until step 6 is done, students who press Submit see “This survey isn't connect
 **Notes**
 - If you later change the Apps Script, use **Deploy → Manage deployments → Edit → New version** so the URL stays the same.
 - Anyone who has the page link could send a response, so treat names as self-reported.
+- After an update, the live page can take a few minutes to change. If it still looks old, check the repository's **Actions** tab for a green “pages build and deployment” run.
