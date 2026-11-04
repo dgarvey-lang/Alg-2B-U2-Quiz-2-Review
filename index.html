@@ -155,7 +155,7 @@
 <nav class="toc" aria-label="Sections">
   <a href="#simplify">1 · Simplifying Radicals</a>
   <a href="#operations">2 · Rationalizing</a>
-  <a href="#radeq">3 · Radical Equations</a>
+  <a href="#radeq">3 · Square Rooting</a>
   <a href="#quad">4 · Solving Quadratics</a>
   <a href="#apply">5 · Applications</a>
   <a href="#survey">Survey</a>
@@ -214,21 +214,21 @@
 
 <!-- ============ 3 ============ -->
 <section id="radeq">
-  <h2>3 · Solving Radical Equations</h2>
+  <h2>3 · Solving Quadratics by Square Rooting</h2>
   <div class="notes">
     <strong>Steps</strong>
     <ul>
-      <li>Isolate the radical.</li>
-      <li>Square both sides.</li>
-      <li>Solve, then <strong>check every answer in the original equation</strong>. Squaring can create <em>extraneous</em> solutions.</li>
-      <li>If an isolated square root equals a negative number, there is no solution.</li>
+      <li>Isolate the squared part: \(x^2\) or \((x-h)^2\).</li>
+      <li>Take the square root of both sides. Don’t forget the \(\pm\)!</li>
+      <li>Simplify the radical. If the number under it is negative, rewrite it using \(i\): \(\sqrt{-a} = i\sqrt a\).</li>
+      <li>If there is a \((x-h)^2\), finish solving for \(x\) by adding or subtracting.</li>
     </ul>
   </div>
   <ol class="problems">
-    <li><span class="num">6.</span> Solve \(\sqrt{x+5} = 4\).</li>
-    <li><span class="num">7.</span> Solve \(\sqrt{2x-3} + 2 = 7\).</li>
-    <li><span class="num">8.</span> Solve \(\sqrt{x+7} = x - 5\).</li>
-    <li><span class="num">9.</span> Solve \(\sqrt{x+3} + 5 = 2\).</li>
+    <li><span class="num">6.</span> Solve \(x^2 + 3 = 7\).</li>
+    <li><span class="num">7.</span> Solve \((x-3)^2 = 16\).</li>
+    <li><span class="num">8.</span> Solve \(3x^2 - 4 = 56\).</li>
+    <li><span class="num">9.</span> Solve \((x+1)^2 + 12 = 4\).</li>
   </ol>
 </section>
 
@@ -387,7 +387,7 @@
     document.getElementById('clear').onclick = () => { strokes.length = 0; redraw(); };
   })();
 </script>
-<script src="checker.js?v=2026-11-04"></script>
+<script src="checker.js?v=2026-11-04b"></script>
 <script src="survey.js?v=2026-11-04c"></script>
 </body>
 </html>

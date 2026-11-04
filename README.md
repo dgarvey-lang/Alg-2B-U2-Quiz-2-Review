@@ -6,7 +6,7 @@ An interactive review page (`index.html`) with 15 practice problems, a **Check w
 |---|---|---|
 | 1 | Simplifying square roots (numbers, variables, √ of negatives) | 1–3 |
 | 2 | Dividing radicals and rationalizing denominators | 4–5 |
-| 3 | Solving radical equations and extraneous solutions | 6–9 |
+| 3 | Solving quadratics by square rooting (including imaginary solutions) | 6–9 |
 | 4 | Solving quadratics by factoring and by square roots | 10–13 |
 | 5 | Applications | 14–15 |
 | — | Survey: “What do you need more help on?” | end of page |
