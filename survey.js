@@ -3,7 +3,7 @@
  * Google Apps Script web app (see teacher/survey-apps-script.gs and the README). */
 
 // ===== TEACHER SETUP: paste your Apps Script web app URL between the quotes =====
-const SURVEY_URL = '';
+const SURVEY_URL = 'https://script.google.com/macros/s/AKfycbwDbUPt3YWOmChtvMEBfI6yk_BmEamnUVPvw4DuYWD-g7sJOheY8fabvGNEFr3s5B-b/exec';
 // ===============================================================================
 
 (function () {
