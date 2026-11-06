@@ -1,0 +1,1215 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polynomial Graph Explorer</title>
+<style>
+  :root {
+    color-scheme: light;
+    --bg: #f7f7f5; --card: #ffffff; --text: #1d1d1f; --muted: #5b5b63;
+    --accent: #1f5fae; --accent-soft: #e6eefa; --border: #dcdce0;
+    --good: #1f7a3d; --warn: #a35200; --bad: #c62828;
+    --plot: #ffffff; --grid: #e8ebf0; --axis: #5b5b63;
+    --up: #1f5fae; --down: #d9480f; --flat: #5b5b63;
+    --zero: #7c3aed; --max: #1f7a3d; --min: #c62828; --calc: #b7791f;
+    --on-accent: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --bg: #141416; --card: #1e1e22; --text: #ececf0; --muted: #a3a3ad;
+      --accent: #7fb0ff; --accent-soft: #1f2a3d; --border: #33333a;
+      --good: #6fd08f; --warn: #ffb067; --bad: #ff7b7b;
+      --plot: #18181b; --grid: #2a2a31; --axis: #a3a3ad;
+      --up: #7fb0ff; --down: #ff9a5c; --flat: #a3a3ad;
+      --zero: #c4a5ff; --max: #6fd08f; --min: #ff8a8a; --calc: #f2c14e;
+      --on-accent: #10131a;
+    }
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding: 20px 16px 64px; }
+  header h1 { margin: 0 0 4px; font-size: 1.7rem; }
+  header p { margin: 0; color: var(--muted); }
+  .tabs { display: flex; gap: 8px; margin: 18px 0 14px; flex-wrap: wrap; }
+  .tabs button { font-size: 1rem; padding: 8px 18px; border-radius: 999px; }
+  .tabs button[aria-selected="true"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+  button {
+    font: inherit; font-size: .92rem; cursor: pointer; border-radius: 8px; min-height: 36px;
+    border: 1px solid var(--border); background: var(--card); color: var(--text); padding: 6px 12px;
+  }
+  button:hover:not(:disabled) { border-color: var(--accent); }
+  button:disabled { opacity: .45; cursor: not-allowed; }
+  button.primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); font-weight: 600; }
+  button[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); font-weight: 600; }
+  .layout { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 920px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+  .card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; }
+  .stack { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+  .card h2 { font-size: 1.1rem; margin: 0 0 8px; }
+  .eq { font-size: 1.35rem; font-family: "Cambria Math", "Times New Roman", serif; overflow-x: auto; white-space: nowrap; padding-bottom: 2px; }
+  .eq2 { color: var(--muted); font-size: .95rem; margin-top: 2px; overflow-x: auto; white-space: nowrap; }
+  .eq2 span { font-family: "Cambria Math", "Times New Roman", serif; font-size: 1.05rem; color: var(--text); }
+  .graphbox { position: relative; width: 100%; aspect-ratio: 4 / 3; max-height: 68vh; margin-top: 10px;
+    border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  @media (max-width: 600px) { .graphbox { aspect-ratio: 1 / 1; } }
+  .graphbox canvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
+  .graphbox canvas:focus-visible { outline: 3px solid var(--accent); outline-offset: -3px; }
+  .toolbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-top: 10px; }
+  .toolbar .lbl { font-weight: 600; font-size: .9rem; color: var(--muted); margin-right: 2px; }
+  .toolbar .spacer { flex: 1; }
+  .status { margin-top: 8px; padding: 8px 12px; border-radius: 8px; background: var(--accent-soft); font-size: .95rem; min-height: 2.4em; }
+  .status.err { background: transparent; border: 1px solid var(--warn); color: var(--warn); }
+  .status.ok { background: transparent; border: 1px solid var(--good); }
+  .readout { margin-top: 6px; color: var(--muted); font-size: .9rem; min-height: 1.4em; }
+  .readout b { color: var(--text); }
+  .hint { color: var(--muted); font-size: .88rem; margin: 6px 0 0; }
+  .legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .85rem; color: var(--muted); margin-top: 8px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .sw { width: 18px; height: 4px; border-radius: 2px; display: inline-block; }
+  .layers { display: flex; flex-wrap: wrap; gap: 4px 14px; margin-top: 8px; font-size: .92rem; }
+  .layers label { display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+  .layers input, .chk input { width: 18px; height: 18px; }
+  .seg { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; }
+  .seg button { border: none; border-radius: 0; min-height: 34px; }
+  .seg button + button { border-left: 1px solid var(--border); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: var(--on-accent); }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 8px 0; }
+  input[type=number], input[type=text], select {
+    font: inherit; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg); color: var(--text); min-height: 36px;
+  }
+  input[type=number] { width: 5.2em; }
+  input[type=range] { flex: 1 1 160px; min-width: 120px; accent-color: var(--accent); }
+  .zrow { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 6px 0; border-top: 1px dashed var(--border); }
+  .zrow .fac { font-family: "Cambria Math", "Times New Roman", serif; font-size: 1.1rem; min-width: 5.5em; }
+  .zrow .x { margin-left: auto; }
+  .chk { display: flex; gap: 8px; align-items: flex-start; margin-top: 10px; font-size: .92rem; cursor: pointer; }
+  .chk input { margin-top: 2px; flex: none; }
+  .coefgrid { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-family: "Cambria Math", "Times New Roman", serif; font-size: 1.1rem; }
+  .coefgrid input { width: 4.4em; font-family: system-ui, sans-serif; font-size: 1rem; }
+  .summary ul { margin: 6px 0 0; padding-left: 20px; }
+  .summary li { margin: 4px 0; }
+  .summary .pill { display: inline-block; padding: 0 8px; border-radius: 999px; font-size: .82rem; font-weight: 600; border: 1px solid currentColor; margin-left: 4px; }
+  .summary .rule { background: var(--accent-soft); border-radius: 8px; padding: 8px 12px; font-size: .95rem; }
+  .c-zero { color: var(--zero); } .c-max { color: var(--max); } .c-min { color: var(--min); }
+  .c-up { color: var(--up); } .c-down { color: var(--down); }
+  .hidden-note { color: var(--muted); font-style: italic; }
+  .challenges { list-style: none; padding: 0; margin: 0; }
+  .challenges li { display: flex; gap: 10px; align-items: flex-start; padding: 6px 0; border-top: 1px dashed var(--border); font-size: .95rem; }
+  .challenges li:first-child { border-top: none; }
+  .challenges .box { flex: none; width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border); display: grid; place-items: center; font-weight: 700; font-size: .85rem; }
+  .challenges li.done .box { background: var(--good); border-color: var(--good); color: #fff; }
+  .challenges li.done span.t { color: var(--muted); }
+  details.card summary { cursor: pointer; font-weight: 700; font-size: 1.05rem; }
+  details.card dl { margin: 8px 0 0; }
+  details.card dt { font-weight: 700; margin-top: 8px; }
+  details.card dd { margin: 2px 0 0 0; color: var(--text); }
+  details.card ol { padding-left: 22px; margin: 6px 0; }
+  kbd { font: .85em ui-monospace, Menlo, Consolas, monospace; border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 4px; padding: 0 4px; background: var(--bg); }
+  .q { padding: 10px 0; border-top: 1px dashed var(--border); }
+  .q:first-of-type { border-top: none; }
+  .q .prompt { font-weight: 600; }
+  .q .prompt small { font-weight: 400; color: var(--muted); }
+  .q .ans { display: flex; gap: 8px; margin-top: 6px; }
+  .q .ans input { flex: 1 1 auto; min-width: 0; font-size: 1.02rem; }
+  .q.right { box-shadow: inset 4px 0 0 var(--good); padding-left: 10px; }
+  .fb { font-size: .92rem; font-weight: 600; margin-top: 4px; min-height: 1.2em; }
+  .fb.right { color: var(--good); } .fb.wrong { color: var(--bad); } .fb.almost { color: var(--warn); }
+  .fb .tip { display: block; font-weight: 400; color: var(--muted); }
+  .scoreline { font-weight: 700; color: var(--accent); }
+  .banner { margin-top: 10px; padding: 10px 12px; border-radius: 8px; border: 2px solid var(--good); color: var(--good); font-weight: 700; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Polynomial Graph Explorer</h1>
+  <p>Find the real zeros, turning points, relative maximums, and relative minimums of a polynomial function.</p>
+</header>
+
+<div class="tabs" role="tablist">
+  <button role="tab" id="tabExplore" aria-selected="true" aria-controls="explore">Explore</button>
+  <button role="tab" id="tabPractice" aria-selected="false" aria-controls="practice">Practice</button>
+</div>
+
+<!-- ======================= EXPLORE ======================= -->
+<section id="explore" role="tabpanel" aria-labelledby="tabExplore">
+<div class="layout">
+  <div class="stack">
+    <div class="card" id="eGraphCard">
+      <div class="eq" id="eEq"></div>
+      <div class="eq2" id="eEq2"></div>
+      <div class="graphbox"><canvas id="eCanvas" tabindex="0" aria-label="Graph of the polynomial. Use the left and right arrow keys to trace along the curve."></canvas></div>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--up)"></i>rising (increasing)</span>
+        <span><i class="sw" style="background:var(--down)"></i>falling (decreasing)</span>
+        <span class="c-zero">● real zero</span>
+        <span class="c-max">▲ relative maximum</span>
+        <span class="c-min">▼ relative minimum</span>
+      </div>
+      <div class="toolbar">
+        <span class="lbl">Calculator:</span>
+        <button class="calc-btn" data-kind="zero">zero</button>
+        <button class="calc-btn" data-kind="max">maximum</button>
+        <button class="calc-btn" data-kind="min">minimum</button>
+        <button class="calc-cancel" hidden>Cancel</button>
+        <span class="spacer"></span>
+        <button class="zoom-out" aria-label="Zoom out">−</button>
+        <button class="zoom-in" aria-label="Zoom in">+</button>
+        <button class="fit">Fit graph</button>
+      </div>
+      <div class="status" aria-live="polite"></div>
+      <div class="readout" aria-live="off"></div>
+      <div class="layers" aria-label="Show on graph">
+        <strong style="font-size:.9rem;color:var(--muted)">Show:</strong>
+        <label><input type="checkbox" id="lyZeros" checked> zeros</label>
+        <label><input type="checkbox" id="lyTurning" checked> max &amp; min</label>
+        <label><input type="checkbox" id="lyColors" checked> rising/falling colors</label>
+        <label><input type="checkbox" id="lyLabels" checked> coordinates</label>
+        <label><input type="checkbox" id="lySummary" checked> “What the graph shows” box</label>
+      </div>
+    </div>
+  </div>
+
+  <div class="stack">
+    <div class="card">
+      <h2>Build a polynomial</h2>
+      <div class="row">
+        <div class="seg" role="group" aria-label="Form">
+          <button id="modeF" aria-pressed="true">Factored form</button>
+          <button id="modeS" aria-pressed="false">Standard form</button>
+        </div>
+      </div>
+      <div class="row">
+        <label for="preset" style="font-size:.92rem">Try an example:</label>
+        <select id="preset" style="flex:1 1 180px;min-width:0"></select>
+      </div>
+
+      <div id="panelF">
+        <div class="row">
+          <label for="aSlider">Leading coefficient <i>a</i> = <b id="aOut">1</b></label>
+          <input type="range" id="aSlider" min="-3" max="3" step="0.25" value="1">
+        </div>
+        <div id="zeroList"></div>
+        <div class="row">
+          <button id="addZero">+ Add a zero</button>
+          <span class="hint" id="degNote" style="margin:0"></span>
+        </div>
+        <label class="chk"><input type="checkbox" id="quadBox"> <span>Multiply by (<i>x</i>² + 1). This factor adds 2 to the degree but has <b>no real zeros</b>.</span></label>
+        <p class="hint">Tip: drag the purple dots on the graph to move the zeros.</p>
+      </div>
+
+      <div id="panelS" hidden>
+        <p class="hint" style="margin-top:0">Type the coefficients. Use 0 for a missing term.</p>
+        <div class="coefgrid" id="coefGrid"></div>
+      </div>
+    </div>
+
+    <div class="card summary" id="summaryCard">
+      <h2>What the graph shows</h2>
+      <div id="summary"></div>
+    </div>
+
+    <div class="card">
+      <h2>Challenges</h2>
+      <p class="hint" style="margin-top:0">Change the function until each box gets a check.</p>
+      <ul class="challenges" id="challenges"></ul>
+    </div>
+
+    <details class="card">
+      <summary>Key ideas</summary>
+      <dl>
+        <dt>Real zero (x-intercept)</dt>
+        <dd>An <i>x</i>-value where <i>f</i>(<i>x</i>) = 0. The graph crosses or touches the <i>x</i>-axis there.
+          A factor with an <b>odd</b> exponent crosses the axis. A factor with an <b>even</b> exponent touches it and bounces back.</dd>
+        <dt>Turning point</dt>
+        <dd>A point where the graph changes from rising to falling, or from falling to rising.</dd>
+        <dt>Relative maximum</dt>
+        <dd>A turning point that is the top of a “hill.” It is higher than the points near it, but it does not have to be the highest point on the whole graph.</dd>
+        <dt>Relative minimum</dt>
+        <dd>A turning point that is the bottom of a “valley.” It is lower than the points near it.</dd>
+        <dt>How many?</dt>
+        <dd>A polynomial of degree <i>n</i> has <b>at most <i>n</i> real zeros</b> and <b>at most <i>n</i> − 1 turning points</b>.</dd>
+        <dt>Writing answers</dt>
+        <dd>Write a relative max or min as a point (<i>x</i>, <i>y</i>). The relative maximum <em>value</em> is the <i>y</i>-coordinate.</dd>
+      </dl>
+    </details>
+
+    <details class="card">
+      <summary>On a TI-84 graphing calculator</summary>
+      <ol>
+        <li>Press <kbd>Y=</kbd> and type the function. Press <kbd>GRAPH</kbd>.</li>
+        <li>Press <kbd>2nd</kbd> <kbd>TRACE</kbd> to open <b>CALC</b>.</li>
+        <li>Choose <b>2: zero</b>, <b>3: minimum</b>, or <b>4: maximum</b>.</li>
+        <li><b>Left Bound?</b> Move the cursor to the left of the point and press <kbd>ENTER</kbd>.</li>
+        <li><b>Right Bound?</b> Move to the right of the point and press <kbd>ENTER</kbd>.</li>
+        <li><b>Guess?</b> Move near the point and press <kbd>ENTER</kbd>.</li>
+        <li>Round the <i>X</i> and <i>Y</i> values to the nearest hundredth.</li>
+      </ol>
+      <p class="hint">The <b>Calculator</b> buttons under the graph work the same way.</p>
+    </details>
+  </div>
+</div>
+</section>
+
+<!-- ======================= PRACTICE ======================= -->
+<section id="practice" role="tabpanel" aria-labelledby="tabPractice" hidden>
+<div class="layout">
+  <div class="stack">
+    <div class="card" id="pGraphCard">
+      <div class="row" style="margin-top:0">
+        <div class="eq" id="pEq" style="flex:1 1 auto;min-width:0"></div>
+        <div class="seg" role="group" aria-label="Show equation as">
+          <button id="pShowS" aria-pressed="true">Standard</button>
+          <button id="pShowF" aria-pressed="false">Factored</button>
+        </div>
+      </div>
+      <div class="graphbox"><canvas id="pCanvas" tabindex="0" aria-label="Graph of the practice polynomial. Use the left and right arrow keys to trace along the curve."></canvas></div>
+      <div class="toolbar">
+        <span class="lbl">Calculator:</span>
+        <button class="calc-btn" data-kind="zero">zero</button>
+        <button class="calc-btn" data-kind="max">maximum</button>
+        <button class="calc-btn" data-kind="min">minimum</button>
+        <button class="calc-cancel" hidden>Cancel</button>
+        <span class="spacer"></span>
+        <button class="zoom-out" aria-label="Zoom out">−</button>
+        <button class="zoom-in" aria-label="Zoom in">+</button>
+        <button class="fit">Fit graph</button>
+      </div>
+      <div class="status" aria-live="polite"></div>
+      <div class="readout" aria-live="off"></div>
+    </div>
+  </div>
+  <div class="stack">
+    <div class="card">
+      <div class="row" style="margin-top:0">
+        <h2 style="margin:0;flex:1">Practice</h2>
+        <button class="primary" id="pNew">New function</button>
+      </div>
+      <p class="hint" style="margin-top:0">Use the graph and the Calculator buttons. Round to the nearest hundredth. Type points as (x, y) and separate answers with commas. Type <b>none</b> if there aren’t any.</p>
+      <div id="questions"></div>
+      <div class="row">
+        <span class="scoreline" id="pScore"></span>
+        <span class="spacer" style="flex:1"></span>
+        <button id="pReveal" disabled title="Check every answer once to unlock">Show answers on graph</button>
+      </div>
+      <div class="banner" id="pBanner" hidden>All 5 correct! Press <b>New function</b> to try another.</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<footer style="margin-top:40px;color:var(--muted);font-size:.85rem">Algebra 2B · Polynomial Graph Explorer</footer>
+</div>
+
+<script>
+'use strict';
+/* ================================================================
+   Number formatting
+   ================================================================ */
+const MINUS = '−';
+function fmt(v, dp = 2) {
+  if (!isFinite(v)) return v > 0 ? '∞' : MINUS + '∞';
+  if (Math.abs(v) < 0.5 * Math.pow(10, -dp)) v = 0;
+  let s = v.toFixed(dp);
+  if (s.includes('.')) s = s.replace(/0+$/, '').replace(/\.$/, '');
+  if (s === '-0') s = '0';
+  return s.replace('-', MINUS);
+}
+const fmtPt = (x, y) => `(${fmt(x)}, ${fmt(y)})`;
+
+/* ================================================================
+   Polynomial math  (coefficients stored lowest power first)
+   ================================================================ */
+const Poly = {
+  ev(c, x) { let y = 0; for (let i = c.length - 1; i >= 0; i--) y = y * x + c[i]; return y; },
+  mag(c, x) { let s = 0, p = 1, ax = Math.abs(x); for (const v of c) { s += Math.abs(v) * p; p *= ax; } return s; },
+  d(c) { return c.length <= 1 ? [0] : c.slice(1).map((v, i) => v * (i + 1)); },
+  mul(a, b) { const r = new Array(a.length + b.length - 1).fill(0); a.forEach((x, i) => b.forEach((y, j) => { r[i + j] += x * y; })); return r; },
+  trim(c) { c = c.map(v => (Math.abs(v) < 1e-12 ? 0 : v)); while (c.length > 1 && c[c.length - 1] === 0) c.pop(); return c.length ? c : [0]; },
+};
+
+/* All distinct real roots, using the critical points of p to bracket them. */
+function realRoots(c) {
+  c = Poly.trim(c);
+  const n = c.length - 1;
+  if (n < 1) return [];
+  if (n === 1) return [-c[0] / c[1]];
+  const crit = realRoots(Poly.d(c)).sort((a, b) => a - b);
+  let B = 1;
+  for (let i = 0; i < n; i++) B = Math.max(B, 1 + Math.abs(c[i] / c[n]));
+  const f = x => Poly.ev(c, x);
+  const roots = [];
+  for (const x of crit) if (Math.abs(f(x)) <= 1e-9 * Poly.mag(c, x)) roots.push(x); // repeated roots
+  const pts = [-B, ...crit.filter(x => x > -B && x < B), B];
+  for (let k = 0; k < pts.length - 1; k++) {
+    let a = pts[k], b = pts[k + 1], fa = f(a);
+    const fb = f(b);
+    if (fa === 0 || fb === 0 || Math.sign(fa) === Math.sign(fb)) continue;
+    for (let it = 0; it < 200; it++) {
+      const m = (a + b) / 2;
+      if (m === a || m === b) break;
+      const fm = f(m);
+      if (fm === 0) { a = b = m; break; }
+      if (Math.sign(fm) === Math.sign(fa)) { a = m; fa = fm; } else b = m;
+    }
+    roots.push((a + b) / 2);
+  }
+  roots.sort((a, b) => a - b);
+  const out = [];
+  for (const r of roots) if (!out.length || Math.abs(r - out[out.length - 1]) > 1e-6) out.push(r);
+  return out;
+}
+
+const tidy = v => (Math.abs(v) < 1e-9 ? 0 : (Math.abs(v - Math.round(v)) < 1e-9 ? Math.round(v) : v));
+
+function analyze(cIn) {
+  const c = Poly.trim(cIn), n = c.length - 1, dc = Poly.d(c);
+  const f = x => Poly.ev(c, x), g = x => Poly.ev(dc, x);
+  const isZeroFn = n === 0 && c[0] === 0;
+  const zx = isZeroFn ? [] : realRoots(c);
+  const zeros = zx.map((r, i) => {
+    const l = i ? (zx[i - 1] + r) / 2 : r - 1, rr = i < zx.length - 1 ? (r + zx[i + 1]) / 2 : r + 1;
+    const crosses = Math.sign(f(l)) !== Math.sign(f(rr));
+    let m = 1, d = dc;
+    while (m < n && Math.abs(Poly.ev(d, r)) <= 1e-6 * Poly.mag(d, r)) { m++; d = Poly.d(d); }
+    return { x: tidy(r), y: 0, crosses, mult: m };
+  });
+  const cx = n >= 2 ? realRoots(dc) : [];
+  const turning = [];
+  cx.forEach((x, i) => {
+    const l = i ? (cx[i - 1] + x) / 2 : x - 1, r = i < cx.length - 1 ? (x + cx[i + 1]) / 2 : x + 1;
+    const sl = Math.sign(g(l)), sr = Math.sign(g(r));
+    let y = f(x);
+    if (Math.abs(y) <= 1e-9 * Poly.mag(c, x)) y = 0;
+    if (sl > 0 && sr < 0) turning.push({ x: tidy(x), y, type: 'max' });
+    else if (sl < 0 && sr > 0) turning.push({ x: tidy(x), y, type: 'min' });
+  });
+  const bounds = [-Infinity, ...turning.map(t => t.x), Infinity];
+  const inc = [], dec = [];
+  for (let k = 0; k < bounds.length - 1; k++) {
+    const a = bounds[k], b = bounds[k + 1];
+    let m = a === -Infinity ? (b === Infinity ? 0.123 : b - 1) : (b === Infinity ? a + 1 : (a + b) / 2);
+    if (g(m) === 0) m += 0.0123;
+    const s = Math.sign(g(m));
+    if (s > 0) inc.push([a, b]); else if (s < 0) dec.push([a, b]);
+  }
+  return { c, dc, n, zeros, turning, inc, dec, lead: c[n], isZeroFn };
+}
+
+/* ================================================================
+   Equation display
+   ================================================================ */
+const isOne = v => Math.abs(v - 1) < 1e-10;
+function xPow(i) { return i === 0 ? '' : i === 1 ? '<i>x</i>' : `<i>x</i><sup>${i}</sup>`; }
+function standardHTML(cIn) {
+  const c = Poly.trim(cIn);
+  let s = '';
+  for (let i = c.length - 1; i >= 0; i--) {
+    const v = c[i];
+    if (Math.abs(v) < 1e-10) continue;
+    const neg = v < 0, a = Math.abs(v);
+    const coef = (isOne(a) && i > 0) ? '' : fmt(a, 3);
+    if (!s) s = (neg ? MINUS : '') + coef + xPow(i);
+    else s += ` ${neg ? MINUS : '+'} ${coef}${xPow(i)}`;
+  }
+  return s || '0';
+}
+function factoredHTML(st) {
+  let s = '';
+  const a = st.a;
+  if (Math.abs(a + 1) < 1e-12) s = MINUS;
+  else if (!isOne(a)) s = fmt(a, 3);
+  for (const z of st.zeros) {
+    let t = Math.abs(z.x) < 1e-12 ? '<i>x</i>' : `(<i>x</i> ${z.x > 0 ? MINUS : '+'} ${fmt(Math.abs(z.x), 3)})`;
+    if (z.m > 1) t += `<sup>${z.m}</sup>`;
+    s += t;
+  }
+  if (st.quad) s += st.quadHTML || '(<i>x</i><sup>2</sup> + 1)';
+  if (!st.zeros.length && !st.quad) s = fmt(a, 3);
+  return s;
+}
+function expandF(st) {
+  let c = [st.a];
+  st.zeros.forEach(z => { for (let k = 0; k < z.m; k++) c = Poly.mul(c, [-z.x, 1]); });
+  if (st.quad) c = Poly.mul(c, st.quadC || [1, 0, 1]);
+  return c;
+}
+const degF = st => st.zeros.reduce((s, z) => s + z.m, 0) + (st.quad ? 2 : 0);
+
+/* ================================================================
+   Colors from CSS variables
+   ================================================================ */
+function colors() {
+  const cs = getComputedStyle(document.documentElement);
+  const v = n => cs.getPropertyValue(n).trim();
+  return { plot: v('--plot'), grid: v('--grid'), axis: v('--axis'), text: v('--text'), muted: v('--muted'),
+    card: v('--card'), up: v('--up'), down: v('--down'), flat: v('--flat'), curve: v('--accent'),
+    zero: v('--zero'), max: v('--max'), min: v('--min'), calc: v('--calc') };
+}
+function niceStep(raw) {
+  const p = Math.pow(10, Math.floor(Math.log10(raw))), r = raw / p;
+  return (r <= 1 ? 1 : r <= 2 ? 2 : r <= 5 ? 5 : 10) * p;
+}
+
+/* ================================================================
+   Graph view: drawing, tracing, calculator tool, draggable zeros
+   ================================================================ */
+const CALC_WORDS = {
+  zero: { name: 'zero', where: 'the zero (where the graph meets the x-axis)' },
+  max: { name: 'maximum', where: 'the top of the hill' },
+  min: { name: 'minimum', where: 'the bottom of the valley' },
+};
+
+class GraphView {
+  constructor(canvas, root, opts = {}) {
+    this.cv = canvas; this.ctx = canvas.getContext('2d'); this.root = root;
+    this.statusEl = root.querySelector('.status'); this.readoutEl = root.querySelector('.readout');
+    this.win = { xmin: -6, xmax: 6, ymin: -8, ymax: 8 };
+    this.layers = { zeros: true, turning: true, colors: true, labels: true };
+    this.trace = null; this.calc = null; this.calcResult = null;
+    this.drag = opts.drag || null;      // { xs(): number[], move(i, x), end() }
+    this.dragIndex = -1; this.pressing = false;
+    this.defaultStatus = opts.defaultStatus || '';
+    this.setPoly([0]);
+    new ResizeObserver(() => this.resize()).observe(canvas.parentElement);
+    this.bindPointer(); this.bindKeys(); this.bindToolbar();
+    matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => this.draw());
+    this.showStatus(this.defaultStatus);
+  }
+
+  /* ---------- data ---------- */
+  setPoly(c, { fit = false, fitY = false, keepCalc = false } = {}) {
+    this.info = analyze(c); this.coeffs = this.info.c; this.dcoeffs = this.info.dc;
+    if (!keepCalc) { this.cancelCalc(true); this.calcResult = null; }
+    if (fit) this.fit(); else if (fitY) this.fit(false);
+    this.draw();
+  }
+  f(x) { return Poly.ev(this.coeffs, x); }
+  g(x) { return Poly.ev(this.dcoeffs, x); }
+
+  fit(fitX = true) {
+    const I = this.info;
+    if (fitX) {
+      const xs = [...I.zeros.map(z => z.x), ...I.turning.map(t => t.x)];
+      let lo = xs.length ? Math.min(...xs) : 0, hi = xs.length ? Math.max(...xs) : 0;
+      lo -= 2; hi += 2;
+      if (hi - lo < 10) { const m = (lo + hi) / 2; lo = m - 5; hi = m + 5; }
+      this.win.xmin = Math.floor(lo); this.win.xmax = Math.ceil(hi);
+    }
+    const { xmin, xmax } = this.win;
+    const ys = [0, ...I.turning.filter(t => t.x >= xmin && t.x <= xmax).map(t => t.y)];
+    if (xmin <= 0 && xmax >= 0) ys.push(this.f(0));
+    let lo = Math.min(...ys), hi = Math.max(...ys);
+    const pad = Math.max(2, (hi - lo) * 0.35);
+    lo -= pad; hi += pad;
+    if (hi - lo < 10) { const m = (lo + hi) / 2; lo = m - 5; hi = m + 5; }
+    const st = niceStep((hi - lo) / 10);
+    this.win.ymin = Math.floor(lo / st) * st; this.win.ymax = Math.ceil(hi / st) * st;
+  }
+  zoom(k) {
+    const w = this.win, cx = (w.xmin + w.xmax) / 2, cy = (w.ymin + w.ymax) / 2;
+    const hx = (w.xmax - w.xmin) / 2 * k, hy = (w.ymax - w.ymin) / 2 * k;
+    if (hx < 0.05 || hx > 1e4) return;
+    Object.assign(w, { xmin: cx - hx, xmax: cx + hx, ymin: cy - hy, ymax: cy + hy });
+    this.draw();
+  }
+
+  /* ---------- coordinates ---------- */
+  resize() {
+    const r = this.cv.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    this.dpr = window.devicePixelRatio || 1;
+    this.W = r.width; this.H = r.height;
+    this.cv.width = Math.round(r.width * this.dpr); this.cv.height = Math.round(r.height * this.dpr);
+    this.draw();
+  }
+  X(x) { const w = this.win; return (x - w.xmin) / (w.xmax - w.xmin) * this.W; }
+  Y(y) { const w = this.win; return this.H - (y - w.ymin) / (w.ymax - w.ymin) * this.H; }
+  toX(px) { const w = this.win; return w.xmin + px / this.W * (w.xmax - w.xmin); }
+  evtPt(e) { const r = this.cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+
+  /* ---------- interaction ---------- */
+  bindPointer() {
+    const cv = this.cv;
+    const nearZero = p => {
+      if (!this.drag) return -1;
+      const xs = this.drag.xs(); let best = -1, bd = 20;
+      xs.forEach((x, i) => { const d = Math.hypot(this.X(x) - p.x, this.Y(0) - p.y); if (d < bd) { bd = d; best = i; } });
+      return best;
+    };
+    cv.addEventListener('pointerdown', e => {
+      const p = this.evtPt(e);
+      cv.focus({ preventScroll: true });
+      if (this.calc) { this.trace = this.toX(p.x); this.calcPick(this.trace); return; }
+      const i = nearZero(p);
+      if (i >= 0) { this.dragIndex = i; cv.setPointerCapture(e.pointerId); cv.style.cursor = 'grabbing'; return; }
+      this.pressing = true; cv.setPointerCapture(e.pointerId);
+      this.setTrace(this.toX(p.x));
+    });
+    cv.addEventListener('pointermove', e => {
+      const p = this.evtPt(e);
+      if (this.dragIndex >= 0) {
+        const x = Math.max(this.win.xmin, Math.min(this.win.xmax, Math.round(this.toX(p.x) * 2) / 2));
+        this.drag.move(this.dragIndex, x);
+        return;
+      }
+      if (e.pointerType === 'mouse' && !this.pressing) cv.style.cursor = nearZero(p) >= 0 && !this.calc ? 'grab' : 'crosshair';
+      if (e.pointerType === 'mouse' || this.pressing) this.setTrace(this.toX(p.x));
+    });
+    const up = () => {
+      if (this.dragIndex >= 0) { this.dragIndex = -1; this.cv.style.cursor = 'grab'; this.drag.end(); }
+      this.pressing = false;
+    };
+    cv.addEventListener('pointerup', up);
+    cv.addEventListener('pointercancel', up);
+    cv.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && !this.pressing && this.dragIndex < 0 && !this.calc) this.setTrace(null); });
+  }
+  bindKeys() {
+    this.cv.addEventListener('keydown', e => {
+      const w = this.win, step = (w.xmax - w.xmin) / (e.shiftKey ? 400 : 80);
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        const x0 = this.trace == null ? (w.xmin + w.xmax) / 2 : this.trace;
+        this.setTrace(Math.max(w.xmin, Math.min(w.xmax, x0 + (e.key === 'ArrowLeft' ? -step : step))));
+      } else if ((e.key === 'Enter' || e.key === ' ') && this.calc && this.trace != null) {
+        e.preventDefault(); this.calcPick(this.trace);
+      } else if (e.key === 'Escape' && this.calc) { this.cancelCalc(); }
+    });
+  }
+  bindToolbar() {
+    const r = this.root;
+    r.querySelectorAll('.calc-btn').forEach(b => b.addEventListener('click', () => this.startCalc(b.dataset.kind)));
+    r.querySelector('.calc-cancel').addEventListener('click', () => this.cancelCalc());
+    r.querySelector('.zoom-in').addEventListener('click', () => this.zoom(1 / 1.5));
+    r.querySelector('.zoom-out').addEventListener('click', () => this.zoom(1.5));
+    r.querySelector('.fit').addEventListener('click', () => { this.fit(); this.draw(); });
+  }
+  setTrace(x) { this.trace = x; this.draw(); this.updateReadout(); }
+  updateReadout() {
+    if (this.trace == null) { this.readoutEl.innerHTML = 'Move over the graph (or tap it, or use the arrow keys) to trace the curve.'; return; }
+    const x = this.trace, y = this.f(x), s = this.g(x);
+    const scale = (this.win.ymax - this.win.ymin) / (this.win.xmax - this.win.xmin);
+    let dir;
+    if (this.info.n === 0) dir = 'flat';
+    else if (Math.abs(s) < 0.02 * scale) dir = 'almost flat here (close to a turning point?)';
+    else dir = s > 0 ? '<span class="c-up">rising ↗ (increasing)</span>' : '<span class="c-down">falling ↘ (decreasing)</span>';
+    this.readoutEl.innerHTML = `Trace: <b>x = ${fmt(x)}</b>, <b>y = ${fmt(y)}</b>. The graph is ${dir}.`;
+  }
+
+  /* ---------- calculator tool ---------- */
+  setCalcButtons() {
+    this.root.querySelectorAll('.calc-btn').forEach(b => b.setAttribute('aria-pressed', String(!!this.calc && this.calc.kind === b.dataset.kind)));
+    this.root.querySelector('.calc-cancel').hidden = !this.calc;
+  }
+  showStatus(html, cls = '') { this.statusEl.innerHTML = html; this.statusEl.className = 'status' + (cls ? ' ' + cls : ''); }
+  startCalc(kind) {
+    this.calc = { kind, step: 'L' }; this.calcResult = null;
+    this.setCalcButtons(); this.promptCalc(); this.draw();
+  }
+  cancelCalc(silent) {
+    const was = !!this.calc;
+    this.calc = null; this.setCalcButtons();
+    if (was && !silent) { this.showStatus(this.defaultStatus); this.draw(); }
+    else if (was) this.showStatus(this.defaultStatus);
+  }
+  promptCalc(extra = '') {
+    const c = this.calc, w = CALC_WORDS[c.kind];
+    const p = {
+      L: `<b>Left Bound?</b> Click the graph a little to the <b>left</b> of ${w.where}.`,
+      R: `<b>Right Bound?</b> Now click to the <b>right</b> of ${w.where}.`,
+      G: `<b>Guess?</b> Click near ${w.where}, between your two bounds.`,
+    }[c.step];
+    this.showStatus(`<b>CALC ${w.name}</b> · ${p}${extra ? '<br>' + extra : ''}`, extra ? 'err' : '');
+  }
+  calcPick(x) {
+    const c = this.calc;
+    if (c.step === 'L') { c.L = x; c.step = 'R'; this.promptCalc(); }
+    else if (c.step === 'R') {
+      if (x <= c.L) { this.promptCalc('The right bound has to be to the right of the left bound. Try again.'); return; }
+      c.R = x; c.step = 'G'; this.promptCalc();
+    } else {
+      if (x < c.L || x > c.R) { this.promptCalc('Your guess has to be between the two bounds (inside the shaded strip).'); return; }
+      c.G = x; this.solveCalc();
+    }
+    this.draw();
+  }
+  solveCalc() {
+    const { kind, L, R, G } = this.calc, f = x => this.f(x), I = this.info;
+    const w = CALC_WORDS[kind];
+    const fail = msg => {
+      this.calcResult = null;
+      this.showStatus(`<b>ERROR.</b> ${msg} <button class="again">Try again</button>`, 'err');
+      this.statusEl.querySelector('.again').onclick = () => this.startCalc(kind);
+      this.calc = { kind, step: 'done', L, R, G }; this.setCalcButtons(); this.draw();
+    };
+    let res, note = '';
+    if (kind === 'zero') {
+      const N = 600, cands = [];
+      let px = L, py = f(L);
+      for (let i = 1; i <= N; i++) {
+        const x = L + (R - L) * i / N, y = f(x);
+        if (py === 0) cands.push(px);
+        else if (py * y < 0) {
+          let a = px, b = x, fa = py;
+          for (let k = 0; k < 100; k++) { const m = (a + b) / 2, fm = f(m); if (fm === 0) { a = b = m; break; } if (Math.sign(fm) === Math.sign(fa)) { a = m; fa = fm; } else b = m; }
+          cands.push((a + b) / 2);
+        }
+        px = x; py = y;
+      }
+      if (f(R) === 0) cands.push(R);
+      const touching = I.zeros.filter(z => !z.crosses && z.x >= L && z.x <= R).map(z => z.x);
+      const all = [...cands, ...touching];
+      if (!all.length) {
+        return fail(`No zero between your bounds. The graph doesn’t reach the <i>x</i>-axis between them. (A TI-84 says <b>NO SIGN CHNG</b>.) Put the bounds on both sides of a place where the graph meets the <i>x</i>-axis.`);
+      }
+      all.sort((a, b) => Math.abs(a - G) - Math.abs(b - G));
+      res = { x: tidy(all[0]), y: 0 };
+      if (touching.some(t => Math.abs(t - res.x) < 1e-6)) note = 'This zero only <b>touches</b> the axis. A real TI-84 may say NO SIGN CHNG here. If it does, use <b>minimum</b> or <b>maximum</b> instead.';
+      if (all.length > 1) note += (note ? ' ' : '') + 'There was more than one zero between your bounds, so it found the one closest to your guess. Tighten the bounds to be sure.';
+    } else {
+      const sg = kind === 'max' ? 1 : -1, N = 1000;
+      let bi = 0, bv = -Infinity;
+      for (let i = 0; i <= N; i++) { const v = sg * f(L + (R - L) * i / N); if (v > bv) { bv = v; bi = i; } }
+      if (bi === 0 || bi === N) {
+        const side = bi === 0 ? 'left' : 'right';
+        return fail(`The ${kind === 'max' ? 'highest' : 'lowest'} point between your bounds is right at the <b>${side} bound</b>, so there is no ${w.name === 'maximum' ? 'hill top' : 'valley bottom'} between them. Make sure ${w.where} is between your Left and Right bounds.`);
+      }
+      let a = L + (R - L) * (bi - 1) / N, b = L + (R - L) * (bi + 1) / N;
+      const gr = (Math.sqrt(5) - 1) / 2;
+      for (let k = 0; k < 120; k++) {
+        const x1 = b - gr * (b - a), x2 = a + gr * (b - a);
+        if (sg * f(x1) > sg * f(x2)) b = x2; else a = x1;
+      }
+      const x = tidy((a + b) / 2);
+      const tp = I.turning.find(t => Math.abs(t.x - x) < 1e-4 && t.type === kind);
+      res = tp ? { x: tp.x, y: tp.y } : { x, y: f(x) };
+      const others = I.turning.filter(t => t.type === kind && t.x > L && t.x < R && Math.abs(t.x - res.x) > 1e-4);
+      if (others.length) note = `There is more than one ${kind === 'max' ? 'hill' : 'valley'} between your bounds. It found the ${kind === 'max' ? 'highest' : 'lowest'} one. Tighten the bounds to find the other.`;
+    }
+    this.calcResult = { ...res, kind };
+    this.calc = { kind, step: 'done', L, R, G }; this.setCalcButtons();
+    const label = { zero: 'Zero', max: 'Maximum', min: 'Minimum' }[kind];
+    const meaning = kind === 'zero'
+      ? `The graph meets the <i>x</i>-axis at <b>x = ${fmt(res.x)}</b>.`
+      : `Relative ${w.name}: <b>${fmtPt(res.x, res.y)}</b> (rounded to the nearest hundredth). The relative ${w.name} <em>value</em> is ${fmt(res.y)}.`;
+    this.showStatus(`<b>${label}</b> &nbsp; X = ${fmt(res.x, 6)} &nbsp; Y = ${fmt(res.y, 6)}<br>${meaning}${note ? '<br><small>' + note + '</small>' : ''}`, 'ok');
+    this.draw();
+  }
+
+  /* ---------- drawing ---------- */
+  label(text, x, y, color, place) {
+    const ctx = this.ctx, C = this.C;
+    ctx.font = '600 12px system-ui, sans-serif';
+    const w = ctx.measureText(text).width + 10, h = 18;
+    let lx = x - w / 2, ly = place === 'above' ? y - h - 9 : y + 9;
+    lx = Math.max(2, Math.min(this.W - w - 2, lx)); ly = Math.max(2, Math.min(this.H - h - 2, ly));
+    ctx.globalAlpha = 0.88; ctx.fillStyle = C.card; ctx.beginPath();
+    ctx.roundRect ? ctx.roundRect(lx, ly, w, h, 5) : ctx.rect(lx, ly, w, h); ctx.fill(); ctx.globalAlpha = 1;
+    ctx.strokeStyle = color; ctx.lineWidth = 1; ctx.stroke();
+    ctx.fillStyle = color; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+    ctx.fillText(text, lx + 5, ly + h / 2 + 0.5);
+  }
+  tri(x, y, up, color) {
+    const ctx = this.ctx, s = 8;
+    ctx.beginPath();
+    if (up) { ctx.moveTo(x, y - s); ctx.lineTo(x + s, y + s * 0.7); ctx.lineTo(x - s, y + s * 0.7); }
+    else { ctx.moveTo(x, y + s); ctx.lineTo(x + s, y - s * 0.7); ctx.lineTo(x - s, y - s * 0.7); }
+    ctx.closePath(); ctx.fillStyle = color; ctx.fill();
+    ctx.strokeStyle = this.C.card; ctx.lineWidth = 1.5; ctx.stroke();
+  }
+  draw() {
+    if (!this.W) return;
+    const ctx = this.ctx, W = this.W, H = this.H, w = this.win, C = (this.C = colors());
+    ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    ctx.fillStyle = C.plot; ctx.fillRect(0, 0, W, H);
+
+    // grid + tick labels
+    const xs = niceStep((w.xmax - w.xmin) / Math.max(4, W / 55)), ys = niceStep((w.ymax - w.ymin) / Math.max(4, H / 45));
+    ctx.lineWidth = 1; ctx.strokeStyle = C.grid; ctx.beginPath();
+    for (let k = Math.ceil(w.xmin / xs); k * xs <= w.xmax; k++) { const px = Math.round(this.X(k * xs)) + 0.5; ctx.moveTo(px, 0); ctx.lineTo(px, H); }
+    for (let k = Math.ceil(w.ymin / ys); k * ys <= w.ymax; k++) { const py = Math.round(this.Y(k * ys)) + 0.5; ctx.moveTo(0, py); ctx.lineTo(W, py); }
+    ctx.stroke();
+    const ax = Math.round(this.Y(0)) + 0.5, ay = Math.round(this.X(0)) + 0.5;
+    ctx.strokeStyle = C.axis; ctx.lineWidth = 1.5; ctx.beginPath();
+    if (w.ymin <= 0 && w.ymax >= 0) { ctx.moveTo(0, ax); ctx.lineTo(W, ax); }
+    if (w.xmin <= 0 && w.xmax >= 0) { ctx.moveTo(ay, 0); ctx.lineTo(ay, H); }
+    ctx.stroke();
+    ctx.fillStyle = C.muted; ctx.font = '11px system-ui, sans-serif';
+    const dpx = Math.max(0, -Math.floor(Math.log10(xs) + 1e-9)), dpy = Math.max(0, -Math.floor(Math.log10(ys) + 1e-9));
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    const lyPos = Math.max(2, Math.min(H - 14, this.Y(0) + 4));
+    for (let k = Math.ceil(w.xmin / xs); k * xs <= w.xmax; k++) { if (k === 0) continue; const px = this.X(k * xs); if (px < 8 || px > W - 8) continue; ctx.fillText(fmt(k * xs, dpx), px, lyPos); }
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    const lxPos = Math.max(26, Math.min(W - 3, this.X(0) - 4));
+    for (let k = Math.ceil(w.ymin / ys); k * ys <= w.ymax; k++) { if (k === 0) continue; const py = this.Y(k * ys); if (py < 8 || py > H - 8) continue; ctx.fillText(fmt(k * ys, dpy), lxPos, py); }
+
+    // calculator bounds
+    const cc = this.calc;
+    if (cc && cc.L != null) {
+      const lx = this.X(cc.L), rx = cc.R != null ? this.X(cc.R) : null;
+      if (rx != null) { ctx.fillStyle = C.calc; ctx.globalAlpha = 0.13; ctx.fillRect(lx, 0, rx - lx, H); ctx.globalAlpha = 1; }
+      ctx.setLineDash([6, 4]); ctx.strokeStyle = C.calc; ctx.lineWidth = 2; ctx.beginPath();
+      ctx.moveTo(lx, 0); ctx.lineTo(lx, H); if (rx != null) { ctx.moveTo(rx, 0); ctx.lineTo(rx, H); }
+      ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = C.calc; ctx.font = '700 13px system-ui, sans-serif'; ctx.textBaseline = 'top';
+      ctx.textAlign = 'left'; ctx.fillText('▶ Left', lx + 4, 6);
+      if (rx != null) { ctx.textAlign = 'right'; ctx.fillText('Right ◀', rx - 4, 6); }
+      if (cc.G != null) { const gx = this.X(cc.G), gy = this.Y(this.f(cc.G)); ctx.strokeStyle = C.calc; ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(gx, gy, 6, 0, 7); ctx.stroke(); }
+    }
+
+    // curve, colored by rising / falling
+    const clampY = v => Math.max(-4 * H, Math.min(5 * H, v));
+    const col = s => (!this.layers.colors ? C.curve : s > 0 ? C.up : s < 0 ? C.down : C.flat);
+    ctx.lineWidth = 3; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+    let cur = null;
+    ctx.beginPath();
+    for (let px = 0; px <= W; px += 1) {
+      const x = this.toX(px), py = clampY(this.Y(this.f(x))), s = Math.sign(this.g(x));
+      if (cur === null) { ctx.moveTo(px, py); cur = s; continue; }
+      if (this.layers.colors && s !== cur && s !== 0) {
+        ctx.lineTo(px, py); ctx.strokeStyle = col(cur); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(px, py); cur = s;
+      } else ctx.lineTo(px, py);
+    }
+    ctx.strokeStyle = col(cur); ctx.stroke();
+
+    const I = this.info, inView = (x, y) => x >= w.xmin && x <= w.xmax && y >= w.ymin && y <= w.ymax;
+    // turning points
+    if (this.layers.turning) for (const t of I.turning) {
+      if (!inView(t.x, t.y)) continue;
+      const color = t.type === 'max' ? C.max : C.min, px = this.X(t.x), py = this.Y(t.y);
+      this.tri(px, py, t.type === 'max', color);
+      if (this.layers.labels) this.label(`rel. ${t.type} ${fmtPt(t.x, t.y)}`, px, py, color, t.type === 'max' ? 'above' : 'below');
+    }
+    // zeros (draggable handles in factored mode)
+    const handles = this.drag ? this.drag.xs() : null;
+    if (handles) {
+      for (const x of handles) {
+        if (x < w.xmin || x > w.xmax || w.ymin > 0 || w.ymax < 0) continue;
+        const px = this.X(x), py = this.Y(0);
+        ctx.beginPath(); ctx.arc(px, py, 9, 0, 7); ctx.fillStyle = C.zero; ctx.fill();
+        ctx.lineWidth = 2.5; ctx.strokeStyle = C.card; ctx.stroke();
+      }
+    }
+    if (this.layers.zeros) for (const z of I.zeros) {
+      if (!inView(z.x, 0)) continue;
+      const px = this.X(z.x), py = this.Y(0);
+      if (!handles) {
+        ctx.beginPath(); ctx.arc(px, py, 6.5, 0, 7); ctx.fillStyle = C.zero; ctx.fill();
+        ctx.lineWidth = 2; ctx.strokeStyle = C.card; ctx.stroke();
+      }
+      const onTurning = this.layers.turning && I.turning.some(t => Math.abs(t.x - z.x) < 1e-6);
+      if (this.layers.labels && !onTurning) this.label(`(${fmt(z.x)}, 0)`, px, py, C.zero, 'below');
+    }
+    // calculator result
+    if (this.calcResult) {
+      const r = this.calcResult, px = this.X(r.x), py = this.Y(r.y);
+      ctx.strokeStyle = C.calc; ctx.lineWidth = 3; ctx.beginPath(); ctx.arc(px, py, 12, 0, 7); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(px - 18, py); ctx.lineTo(px - 6, py); ctx.moveTo(px + 6, py); ctx.lineTo(px + 18, py);
+      ctx.moveTo(px, py - 18); ctx.lineTo(px, py - 6); ctx.moveTo(px, py + 6); ctx.lineTo(px, py + 18); ctx.stroke();
+    }
+    // trace point with tangent line
+    if (this.trace != null && this.trace >= w.xmin && this.trace <= w.xmax) {
+      const x = this.trace, y = this.f(x), px = this.X(x), py = this.Y(y), s = this.g(x);
+      ctx.setLineDash([3, 4]); ctx.strokeStyle = C.muted; ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, H); ctx.stroke(); ctx.setLineDash([]);
+      if (py > -20 && py < H + 20) {
+        const slopePx = -s * (H / (w.ymax - w.ymin)) / (W / (w.xmax - w.xmin));
+        const len = 42 / Math.hypot(1, slopePx);
+        ctx.strokeStyle = this.layers.colors ? col(Math.sign(s)) : C.text; ctx.globalAlpha = 0.65; ctx.lineWidth = 2;
+        ctx.beginPath(); ctx.moveTo(px - len, py - slopePx * len); ctx.lineTo(px + len, py + slopePx * len); ctx.stroke(); ctx.globalAlpha = 1;
+        ctx.beginPath(); ctx.arc(px, py, 5.5, 0, 7); ctx.fillStyle = C.text; ctx.fill(); ctx.strokeStyle = C.card; ctx.lineWidth = 2; ctx.stroke();
+      }
+    }
+  }
+}
+
+/* ================================================================
+   Tabs
+   ================================================================ */
+const tabs = { explore: document.getElementById('tabExplore'), practice: document.getElementById('tabPractice') };
+function showTab(name) {
+  for (const [k, b] of Object.entries(tabs)) {
+    b.setAttribute('aria-selected', String(k === name));
+    document.getElementById(k).hidden = k !== name;
+  }
+  if (name === 'practice' && !prob) newProblem();
+}
+tabs.explore.onclick = () => showTab('explore');
+tabs.practice.onclick = () => showTab('practice');
+
+/* ================================================================
+   EXPLORE
+   ================================================================ */
+const MAX_DEG = 5;
+const PRESETS = [
+  { label: 'x³ − 4x · 3 zeros, 2 turning points', a: 1, zeros: [[-2, 1], [0, 1], [2, 1]] },
+  { label: '(x + 2)(x − 1)² · a zero that bounces', a: 1, zeros: [[-2, 1], [1, 2]] },
+  { label: 'x⁴ − 5x² + 4 · 4 zeros, 3 turning points', a: 1, zeros: [[-2, 1], [-1, 1], [1, 1], [2, 1]] },
+  { label: '−¼(x+3)(x+1)(x−1)(x−3) · two relative maximums', a: -0.25, zeros: [[-3, 1], [-1, 1], [1, 1], [3, 1]] },
+  { label: '(x + 3)(x² + 1) · 1 zero, but 2 turning points', a: 1, zeros: [[-3, 1]], quad: true },
+  { label: 'x(x² + 1) · 1 zero, no turning points', a: 1, zeros: [[0, 1]], quad: true },
+  { label: 'x³ · no turning points at all', a: 1, zeros: [[0, 3]] },
+  { label: 'x⁴ · 1 turning point', a: 1, zeros: [[0, 4]] },
+  { label: '−(x + 1)(x − 2)(x − 3) · negative leading coefficient', a: -1, zeros: [[-1, 1], [2, 1], [3, 1]] },
+];
+const E = {
+  mode: 'F',
+  F: { a: 1, zeros: [{ x: -2, m: 1 }, { x: 0, m: 1 }, { x: 2, m: 1 }], quad: false },
+  S: [0, -4, 0, 1, 0, 0], // a0..a5
+  done: new Set(),
+};
+const eRoot = document.getElementById('eGraphCard');
+const eView = new GraphView(document.getElementById('eCanvas'), eRoot, {
+  defaultStatus: 'Hover or tap the graph to trace it. To find an exact zero, maximum, or minimum, press a <b>Calculator</b> button.',
+  drag: {
+    xs: () => (E.mode === 'F' ? E.F.zeros.map(z => z.x) : []),
+    move: (i, x) => {
+      if (E.F.zeros[i].x === x) return;
+      E.F.zeros[i].x = x;
+      const inp = document.querySelector(`#zeroList input[data-i="${i}"]`); if (inp) inp.value = x;
+      refresh({ list: false });
+    },
+    end: () => { eView.fit(false); eView.draw(); },
+  },
+});
+
+const sel = document.getElementById('preset');
+sel.innerHTML = '<option value="">Choose…</option>' + PRESETS.map((p, i) => `<option value="${i}">${p.label}</option>`).join('');
+sel.onchange = () => {
+  const p = PRESETS[+sel.value]; if (!p) return;
+  E.F = { a: p.a, zeros: p.zeros.map(([x, m]) => ({ x, m })), quad: !!p.quad };
+  setMode('F', true); refresh({ fit: true });
+  sel.value = '';
+};
+
+function setMode(m, silent) {
+  if (m === 'S' && E.mode === 'F') {
+    const c = expandF(E.F); E.S = [0, 0, 0, 0, 0, 0].map((_, i) => tidy(Math.round((c[i] || 0) * 1e9) / 1e9));
+  }
+  E.mode = m;
+  document.getElementById('modeF').setAttribute('aria-pressed', String(m === 'F'));
+  document.getElementById('modeS').setAttribute('aria-pressed', String(m === 'S'));
+  document.getElementById('panelF').hidden = m !== 'F';
+  document.getElementById('panelS').hidden = m !== 'S';
+  if (!silent) refresh({ fit: true });
+}
+document.getElementById('modeF').onclick = () => setMode('F');
+document.getElementById('modeS').onclick = () => setMode('S');
+
+// leading coefficient
+const aSlider = document.getElementById('aSlider'), aOut = document.getElementById('aOut');
+aSlider.oninput = () => {
+  let v = +aSlider.value;
+  if (v === 0) { v = E.F.a > 0 ? -0.25 : 0.25; aSlider.value = v; }
+  E.F.a = v; refresh({ list: false });
+};
+
+function renderZeroList() {
+  const deg = degF(E.F);
+  document.getElementById('zeroList').innerHTML = E.F.zeros.map((z, i) => `
+    <div class="zrow">
+      <span class="fac">${factoredHTML({ a: 1, zeros: [z], quad: false })}</span>
+      <label>zero at <i>x</i> = <input type="number" step="0.5" min="-20" max="20" value="${z.x}" data-i="${i}" aria-label="Zero ${i + 1}"></label>
+      <span class="seg" role="group" aria-label="Multiplicity of zero ${i + 1}" title="How many times this factor repeats (its exponent)">
+        ${[1, 2, 3].map(m => `<button data-i="${i}" data-m="${m}" aria-pressed="${z.m === m}" ${m !== z.m && deg - z.m + m > MAX_DEG ? 'disabled' : ''} title="Multiplicity ${m}" aria-label="Multiplicity ${m}">×${m}</button>`).join('')}
+      </span>
+      <button class="x" data-del="${i}" aria-label="Remove this zero" ${E.F.zeros.length <= 1 ? 'disabled' : ''}>✕</button>
+    </div>`).join('');
+  document.getElementById('addZero').disabled = deg >= MAX_DEG;
+  const qb = document.getElementById('quadBox');
+  qb.checked = E.F.quad; qb.disabled = !E.F.quad && deg + 2 > MAX_DEG;
+  document.getElementById('degNote').textContent = `Degree ${deg} (max ${MAX_DEG}). ×1, ×2, ×3 set how many times a factor repeats (its multiplicity).`;
+}
+document.getElementById('zeroList').addEventListener('input', e => {
+  const i = e.target.dataset.i; if (i == null || e.target.type !== 'number') return;
+  const v = parseFloat(e.target.value); if (!isFinite(v)) return;
+  E.F.zeros[i].x = Math.max(-20, Math.min(20, v));
+  e.target.closest('.zrow').querySelector('.fac').innerHTML = factoredHTML({ a: 1, zeros: [E.F.zeros[i]], quad: false });
+  refresh({ list: false });
+});
+document.getElementById('zeroList').addEventListener('change', () => refresh({ fit: true, list: false }));
+document.getElementById('zeroList').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.del != null) { E.F.zeros.splice(+b.dataset.del, 1); refresh({ fit: true }); }
+  else if (b.dataset.m) { E.F.zeros[+b.dataset.i].m = +b.dataset.m; refresh({ fit: true }); }
+});
+document.getElementById('addZero').onclick = () => {
+  const used = E.F.zeros.map(z => z.x);
+  const x = [3, -3, 1, -1, 4, -4, 0, 2, -2, 5, -5].find(v => !used.includes(v)) ?? 0;
+  E.F.zeros.push({ x, m: 1 }); refresh({ fit: true });
+};
+document.getElementById('quadBox').onchange = e => { E.F.quad = e.target.checked; refresh({ fit: true }); };
+
+// standard form inputs
+const coefGrid = document.getElementById('coefGrid');
+function renderCoefGrid() {
+  let h = '';
+  for (let i = 5; i >= 0; i--) {
+    h += `<span style="white-space:nowrap"><input type="number" step="any" value="${E.S[i]}" data-p="${i}" aria-label="Coefficient of x to the ${i}">${xPow(i)}${i ? ' +' : ''}</span>`;
+  }
+  coefGrid.innerHTML = h;
+}
+coefGrid.addEventListener('input', e => {
+  const p = e.target.dataset.p; if (p == null) return;
+  const v = parseFloat(e.target.value); E.S[+p] = isFinite(v) ? v : 0;
+  refresh({ fit: true, grid: false });
+});
+
+// layer toggles
+const layerMap = { lyZeros: 'zeros', lyTurning: 'turning', lyColors: 'colors', lyLabels: 'labels' };
+for (const [id, key] of Object.entries(layerMap)) {
+  document.getElementById(id).onchange = e => { eView.layers[key] = e.target.checked; eView.draw(); };
+}
+document.getElementById('lySummary').onchange = e => { document.getElementById('summaryCard').hidden = !e.target.checked; };
+
+function intervalText(list) {
+  if (!list.length) return 'nowhere';
+  return list.map(([a, b]) => `(${a === -Infinity ? MINUS + '∞' : fmt(a)}, ${b === Infinity ? '∞' : fmt(b)})`).join(' and ');
+}
+function renderSummary(I) {
+  const n = I.n, el = document.getElementById('summary');
+  if (I.isZeroFn) { el.innerHTML = '<p>This is the zero function. Every <i>x</i> is a zero. Try another function.</p>'; return; }
+  const maxes = I.turning.filter(t => t.type === 'max'), mins = I.turning.filter(t => t.type === 'min');
+  const zItems = I.zeros.map(z => {
+    const how = z.crosses ? 'crosses' : 'touches and bounces';
+    return `<span class="c-zero"><b>x = ${fmt(z.x)}</b></span> · ${how}${z.mult > 1 ? ` (multiplicity ${z.mult})` : ''}`;
+  });
+  const end = s => (s > 0 ? '∞' : MINUS + '∞');
+  const rightEnd = Math.sign(I.lead), leftEnd = Math.sign(I.lead) * (n % 2 ? -1 : 1);
+  el.innerHTML = `
+    <div class="rule">Degree <b>${n}</b>: at most <b>${n}</b> real zero${n === 1 ? '' : 's'} and at most <b>${Math.max(0, n - 1)}</b> turning point${n - 1 === 1 ? '' : 's'}.</div>
+    <ul>
+      <li><b>${I.zeros.length}</b> real zero${I.zeros.length === 1 ? '' : 's'}${zItems.length ? ':<br>' + zItems.join('<br>') : ' (the graph never meets the <i>x</i>-axis)'}</li>
+      <li><b>${I.turning.length}</b> turning point${I.turning.length === 1 ? '' : 's'}</li>
+      <li class="c-max">Relative maximum: ${maxes.length ? maxes.map(t => `<b>${fmtPt(t.x, t.y)}</b>`).join(', ') : 'none'}</li>
+      <li class="c-min">Relative minimum: ${mins.length ? mins.map(t => `<b>${fmtPt(t.x, t.y)}</b>`).join(', ') : 'none'}</li>
+      <li><span class="c-up">Increasing</span> on ${intervalText(I.inc)}<br><span class="c-down">Decreasing</span> on ${intervalText(I.dec)}</li>
+      ${n >= 1 ? `<li>End behavior: as <i>x</i> → ${MINUS}∞, <i>f</i>(<i>x</i>) → ${end(leftEnd)}; as <i>x</i> → ∞, <i>f</i>(<i>x</i>) → ${end(rightEnd)}</li>` : ''}
+    </ul>`;
+}
+
+const CHALLENGES = [
+  { t: 'Make a cubic (degree 3) with exactly <b>2</b> real zeros.', ok: I => I.n === 3 && I.zeros.length === 2 },
+  { t: 'Make a cubic with <b>no</b> turning points.', ok: I => I.n === 3 && I.turning.length === 0 },
+  { t: 'Make a cubic with only <b>1</b> real zero but <b>2</b> turning points.', ok: I => I.n === 3 && I.zeros.length === 1 && I.turning.length === 2 },
+  { t: 'Make a degree 4 function with only <b>1</b> turning point.', ok: I => I.n === 4 && I.turning.length === 1 },
+  { t: 'Make a degree 4 function with <b>two relative maximums</b>.', ok: I => I.n === 4 && I.turning.filter(t => t.type === 'max').length === 2 },
+  { t: 'Make a graph with a relative minimum that sits <b>on</b> the <i>x</i>-axis.', ok: I => I.turning.some(t => t.type === 'min' && t.y === 0) },
+  { t: 'Make a degree 5 function with <b>4</b> turning points.', ok: I => I.n === 5 && I.turning.length === 4 },
+];
+function renderChallenges(I) {
+  CHALLENGES.forEach((c, i) => { if (c.ok(I)) E.done.add(i); });
+  document.getElementById('challenges').innerHTML = CHALLENGES.map((c, i) =>
+    `<li class="${E.done.has(i) ? 'done' : ''}"><span class="box" aria-label="${E.done.has(i) ? 'done' : 'not done yet'}">${E.done.has(i) ? '✓' : ''}</span><span class="t">${c.t}</span></li>`).join('');
+}
+
+function refresh({ fit = false, list = true, grid = true } = {}) {
+  let c;
+  if (E.mode === 'F') {
+    c = expandF(E.F);
+    aSlider.value = E.F.a; aOut.textContent = fmt(E.F.a);
+    if (list) renderZeroList();
+    document.getElementById('eEq').innerHTML = `<i>f</i>(<i>x</i>) = ${factoredHTML(E.F)}`;
+    document.getElementById('eEq2').innerHTML = `Standard form: <span><i>f</i>(<i>x</i>) = ${standardHTML(c)}</span>`;
+  } else {
+    c = E.S.slice();
+    if (grid) renderCoefGrid();
+    document.getElementById('eEq').innerHTML = `<i>f</i>(<i>x</i>) = ${standardHTML(c)}`;
+    document.getElementById('eEq2').innerHTML = '';
+  }
+  eView.setPoly(c, { fit });
+  renderSummary(eView.info);
+  renderChallenges(eView.info);
+}
+
+/* ================================================================
+   PRACTICE
+   ================================================================ */
+const pRoot = document.getElementById('pGraphCard');
+const pView = new GraphView(document.getElementById('pCanvas'), pRoot, {
+  defaultStatus: 'Trace the graph, or use the <b>Calculator</b> buttons to find exact zeros, maximums, and minimums.',
+});
+pView.layers = { zeros: false, turning: false, colors: false, labels: false };
+let prob = null, pShow = 'S';
+const P = { completed: 0 };
+
+const QUESTIONS = [
+  { id: 'nz', prompt: 'How many real zeros does <i>f</i> have?', ph: 'e.g. 3', hint: 'Count the places where the graph crosses or touches the x-axis.' },
+  { id: 'zs', prompt: 'What are the real zeros?', small: 'Separate with commas.', ph: 'e.g. -2, 1, 3', hint: 'A zero is an x-value where y = 0. Try Calculator → zero.' },
+  { id: 'nt', prompt: 'How many turning points?', ph: 'e.g. 2', hint: 'Count the hills and valleys: places where the graph switches between rising and falling.' },
+  { id: 'mx', prompt: 'Relative maximum point(s)', small: 'as (x, y), or none', ph: 'e.g. (-1.15, 3.08)', hint: 'Find the top of each hill. Try Calculator → maximum.' },
+  { id: 'mn', prompt: 'Relative minimum point(s)', small: 'as (x, y), or none', ph: 'e.g. (1.15, -3.08)', hint: 'Find the bottom of each valley. Try Calculator → minimum.' },
+];
+document.getElementById('questions').innerHTML = QUESTIONS.map((q, i) => `
+  <div class="q" id="q-${q.id}">
+    <div class="prompt">${i + 1}. ${q.prompt} ${q.small ? `<small>${q.small}</small>` : ''}</div>
+    <div class="ans"><input type="text" id="in-${q.id}" placeholder="${q.ph}" autocomplete="off" spellcheck="false" aria-label="${q.prompt.replace(/<[^>]+>/g, '')}"><button data-q="${q.id}">Check</button></div>
+    <div class="fb" id="fb-${q.id}" aria-live="polite"></div>
+  </div>`).join('');
+document.getElementById('questions').addEventListener('click', e => { const q = e.target.dataset.q; if (q) checkQ(q); });
+document.getElementById('questions').addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id && e.target.id.startsWith('in-')) checkQ(e.target.id.slice(3));
+});
+
+const randInt = (a, b) => a + Math.floor(Math.random() * (b - a + 1));
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+function makeProblem() {
+  for (let tries = 0; tries < 500; tries++) {
+    const deg = Math.random() < 0.55 ? 3 : 4;
+    const useQuad = Math.random() < 0.25;
+    const nReal = deg - (useQuad ? 2 : 0);
+    const zs = [];
+    while (zs.length < nReal) { const z = randInt(-4, 4); if (zs.includes(z) && Math.random() < 0.75) continue; zs.push(z); }
+    zs.sort((a, b) => a - b);
+    const zeros = [];
+    zs.forEach(z => { const last = zeros[zeros.length - 1]; if (last && last.x === z) last.m++; else zeros.push({ x: z, m: 1 }); });
+    let quadC = null, quadHTML = '';
+    if (useQuad) {
+      const b = pick([-2, 0, 2]), k = b * b / 4 + randInt(1, 3);
+      quadC = [k, b, 1];
+      quadHTML = `(<i>x</i><sup>2</sup>${b ? ` ${b < 0 ? MINUS : '+'} ${Math.abs(b)}<i>x</i>` : ''} + ${k})`;
+    }
+    const st = { a: 1, zeros, quad: useQuad, quadC, quadHTML };
+    const base = analyze(expandF(st));
+    if (!base.turning.length && Math.random() < 0.8) continue;
+    const big = Math.max(1, ...base.turning.map(t => Math.abs(t.y)));
+    const a = pick([1, 0.5, 0.25, 2].filter(v => big * v <= 24 && big * v >= 1.5)) || null;
+    if (!a) continue;
+    st.a = (Math.random() < 0.5 ? -1 : 1) * a;
+    const c = expandF(st), I = analyze(c);
+    const tp = I.turning;
+    if (tp.some(t => t.y !== 0 && Math.abs(t.y) < 0.4)) continue;
+    if (tp.some((t, i) => i && t.x - tp[i - 1].x < 0.6)) continue;
+    const sig = JSON.stringify(c);
+    if (prob && prob.sig === sig) continue;
+    return { st, c, I, sig };
+  }
+  const st = { a: 1, zeros: [{ x: -2, m: 1 }, { x: 0, m: 1 }, { x: 2, m: 1 }], quad: false };
+  const c = expandF(st); return { st, c, I: analyze(c), sig: '' };
+}
+function renderPEq() {
+  document.getElementById('pEq').innerHTML = `<i>f</i>(<i>x</i>) = ${pShow === 'S' ? standardHTML(prob.c) : factoredHTML(prob.st)}`;
+  document.getElementById('pShowS').setAttribute('aria-pressed', String(pShow === 'S'));
+  document.getElementById('pShowF').setAttribute('aria-pressed', String(pShow === 'F'));
+}
+document.getElementById('pShowS').onclick = () => { pShow = 'S'; renderPEq(); };
+document.getElementById('pShowF').onclick = () => { pShow = 'F'; renderPEq(); };
+
+function newProblem() {
+  prob = makeProblem();
+  prob.checked = new Set(); prob.right = new Set();
+  pView.layers = { zeros: false, turning: false, colors: false, labels: false };
+  pView.trace = null;
+  pView.setPoly(prob.c, { fit: true });
+  pView.showStatus(pView.defaultStatus); pView.updateReadout();
+  renderPEq();
+  QUESTIONS.forEach(q => {
+    document.getElementById('in-' + q.id).value = '';
+    document.getElementById('fb-' + q.id).innerHTML = ''; document.getElementById('fb-' + q.id).className = 'fb';
+    document.getElementById('q-' + q.id).classList.remove('right');
+  });
+  const rv = document.getElementById('pReveal'); rv.disabled = true; rv.textContent = 'Show answers on graph';
+  document.getElementById('pBanner').hidden = true;
+  updateScore();
+}
+document.getElementById('pNew').onclick = newProblem;
+document.getElementById('pReveal').onclick = () => {
+  const on = !pView.layers.turning;
+  pView.layers = { zeros: on, turning: on, colors: on, labels: on };
+  document.getElementById('pReveal').textContent = on ? 'Hide answers on graph' : 'Show answers on graph';
+  pView.draw();
+};
+function updateScore() {
+  document.getElementById('pScore').textContent = `${prob.right.size} / ${QUESTIONS.length} correct · functions finished: ${P.completed}`;
+}
+
+function parseNums(s) {
+  return (s.replace(/[−–—]/g, '-').match(/-?(?:\d+\.?\d*|\.\d+)/g) || []).map(Number);
+}
+const isNone = s => /^\s*(none|no|nothing|n\/?a|dne|zero|0 points|∅|ø)\s*\.?\s*$/i.test(s);
+const fx = x => Poly.ev(prob.c, x);
+
+function checkCount(s, expected, what) {
+  if (isNone(s)) s = '0';
+  const n = parseNums(s);
+  if (n.length !== 1 || !Number.isInteger(n[0])) return { cls: 'almost', msg: 'Type one whole number.' };
+  if (n[0] === expected) return { cls: 'right', msg: '✓ Correct!' };
+  if (what === 'zeros' && n[0] > prob.I.n) return { cls: 'wrong', msg: `✗ Not quite. A degree ${prob.I.n} polynomial can have at most ${prob.I.n} real zeros.` };
+  if (what === 'turning' && n[0] > prob.I.n - 1) return { cls: 'wrong', msg: `✗ Not quite. A degree ${prob.I.n} polynomial can have at most ${prob.I.n - 1} turning points.` };
+  return { cls: 'wrong', msg: '✗ Not quite.' };
+}
+function checkZeros(s) {
+  const exp = prob.I.zeros.map(z => z.x);
+  if (isNone(s)) return exp.length ? { cls: 'wrong', msg: '✗ This graph does meet the x-axis. Look again.' } : { cls: 'right', msg: '✓ Correct! The graph never meets the x-axis.' };
+  const given = parseNums(s);
+  if (!given.length) return { cls: 'almost', msg: 'Type the zeros separated by commas, or type none.' };
+  if (!exp.length) return { cls: 'wrong', msg: '✗ This graph never touches the x-axis, so there are no real zeros. Type none.' };
+  const extras = given.filter(g => !exp.some(e => Math.abs(e - g) <= 0.011));
+  const missing = exp.filter(e => !given.some(g => Math.abs(e - g) <= 0.011));
+  if (!extras.length && !missing.length) return { cls: 'right', msg: '✓ Correct!' };
+  if (extras.length) {
+    const g = extras[0];
+    if (exp.some(e => Math.abs(e - g) <= 0.3)) return { cls: 'almost', msg: `Close! Round to the nearest hundredth. Calculator → zero gives the exact value.` };
+    return { cls: 'wrong', msg: `✗ x = ${fmt(g)} is not a zero: f(${fmt(g)}) = ${fmt(fx(g))}, not 0.` };
+  }
+  return { cls: 'almost', msg: `Those are zeros, but you’re missing ${missing.length} more.` };
+}
+function checkPoints(s, type) {
+  const word = type === 'max' ? 'maximum' : 'minimum', other = type === 'max' ? 'min' : 'max';
+  const exp = prob.I.turning.filter(t => t.type === type);
+  if (isNone(s)) return exp.length ? { cls: 'wrong', msg: `✗ There is at least one relative ${word}. Look for a ${type === 'max' ? 'hill' : 'valley'}.` } : { cls: 'right', msg: `✓ Correct! There is no relative ${word}.` };
+  const n = parseNums(s);
+  if (!n.length) return { cls: 'almost', msg: 'Type each point as (x, y), or type none.' };
+  if (!exp.length) return { cls: 'wrong', msg: `✗ This graph has no relative ${word}. Type none.` };
+  if (n.length % 2) return { cls: 'almost', msg: 'Write each answer as a point (x, y), with both coordinates.' };
+  const pts = []; for (let i = 0; i < n.length; i += 2) pts.push({ x: n[i], y: n[i + 1] });
+  const near = (p, t, tx, ty) => Math.abs(p.x - t.x) <= tx && Math.abs(p.y - t.y) <= ty;
+  const tight = (p, t) => near(p, t, 0.011, 0.011);
+  const loose = (p, t) => near(p, t, 0.3, Math.max(0.3, 0.06 * Math.abs(t.y)));
+  for (const p of pts) {
+    if (exp.some(t => tight(p, t))) continue;
+    if (prob.I.turning.some(t => t.type === other && (tight(p, t) || loose(p, t))))
+      return { cls: 'wrong', msg: `✗ ${fmtPt(p.x, p.y)} is a relative ${other === 'max' ? 'maximum' : 'minimum'}, not a ${word}.` };
+    if (exp.some(t => near(p, t, 0.011, 0.011) || near({ x: p.y, y: p.x }, t, 0.011, 0.011)))
+      return { cls: 'almost', msg: 'Check the order: the x-coordinate comes first.' };
+    if (exp.some(t => loose(p, t))) return { cls: 'almost', msg: `Close! Round both coordinates to the nearest hundredth. Calculator → ${word} gives exact values.` };
+    return { cls: 'wrong', msg: `✗ ${fmtPt(p.x, p.y)} is not a relative ${word} of this graph.` };
+  }
+  const missing = exp.filter(t => !pts.some(p => tight(p, t)));
+  if (missing.length) return { cls: 'almost', msg: `Correct so far, but there ${missing.length === 1 ? 'is 1 more relative ' + word : 'are ' + missing.length + ' more'}.` };
+  return { cls: 'right', msg: '✓ Correct!' };
+}
+function checkQ(id) {
+  const s = document.getElementById('in-' + id).value;
+  if (!s.trim()) return;
+  const I = prob.I;
+  const r = id === 'nz' ? checkCount(s, I.zeros.length, 'zeros')
+    : id === 'zs' ? checkZeros(s)
+    : id === 'nt' ? checkCount(s, I.turning.length, 'turning')
+    : id === 'mx' ? checkPoints(s, 'max') : checkPoints(s, 'min');
+  const q = QUESTIONS.find(q => q.id === id);
+  const fb = document.getElementById('fb-' + id);
+  fb.className = 'fb ' + r.cls;
+  fb.innerHTML = r.msg + (r.cls === 'wrong' ? `<span class="tip">Hint: ${q.hint}</span>` : '');
+  prob.checked.add(id);
+  if (r.cls === 'right') prob.right.add(id); else prob.right.delete(id);
+  document.getElementById('q-' + id).classList.toggle('right', r.cls === 'right');
+  if (prob.checked.size === QUESTIONS.length) document.getElementById('pReveal').disabled = false;
+  if (prob.right.size === QUESTIONS.length && !prob.finished) { prob.finished = true; P.completed++; document.getElementById('pBanner').hidden = false; }
+  updateScore();
+}
+
+/* ---------- start ---------- */
+renderCoefGrid();
+refresh({ fit: true });
+eView.updateReadout();
+</script>
+</body>
+</html>
